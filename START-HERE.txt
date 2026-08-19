@@ -1,0 +1,29 @@
+════════════════════════════════════════════════════════
+  VEXORA (فيكسورا) — FULL PROJECT BACKUP
+  Includes: complete code + SQLite database (all accounts,
+  coins, rooms, friendships, orders)
+════════════════════════════════════════════════════════
+
+RUN IT ANYWHERE (any machine with Node.js 20+):
+
+    npm install
+    npm start
+    →  http://localhost:3000
+
+  · Admin: admin@vexora.gg / admin123  (change in .env!)
+  · Database: data/vexora.db (all player data included)
+  · Config: copy config.example.env → .env to customize
+
+DEPLOY PERMANENTLY (24/7) — configs are included:
+
+    Railway (easiest):  see DEPLOY.md  (railway.json included)
+    Render:             render.yaml included (blueprint ready)
+    Docker:             Dockerfile included (volume /data)
+    Any VPS:            bash scripts/deploy-vps.sh user@host
+
+TESTS:
+
+    npm test          (100 backend checks)
+    npm run test:dom  (35 frontend checks)
+
+════════════════════════════════════════════════════════

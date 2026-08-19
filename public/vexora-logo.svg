@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="640" viewBox="0 0 960 640">
+  <defs>
+    <linearGradient id="vexGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="0.52" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="tileGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0e22"/>
+      <stop offset="1" stop-color="#05070f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.38" r="0.6">
+      <stop offset="0" stop-color="#6366f1" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#6366f1" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- tile -->
+  <rect width="960" height="640" rx="36" fill="url(#tileGrad)"/>
+  <rect width="960" height="640" rx="36" fill="url(#glow)"/>
+  <!-- subtle grid -->
+  <g stroke="#96a3dc" stroke-opacity="0.06">
+    <path d="M0 80 H960 M0 160 H960 M0 240 H960 M0 320 H960 M0 400 H960 M0 480 H960 M0 560 H960"/>
+    <path d="M80 0 V640 M160 0 V640 M240 0 V640 M320 0 V640 M400 0 V640 M480 0 V640 M560 0 V640 M640 0 V640 M720 0 V640 M800 0 V640 M880 0 V640"/>
+  </g>
+
+  <!-- emblem: hexagon shield, gradient fill, carved V -->
+  <g transform="translate(480,240)">
+    <!-- outer ring -->
+    <path d="M0 -112 L97 -56 L97 56 L0 112 L-97 56 L-97 -56 Z" fill="none" stroke="url(#vexGrad)" stroke-width="2.5" stroke-opacity="0.45" transform="scale(1.12)"/>
+    <!-- hexagon -->
+    <path d="M0 -99 L83.6 -50.6 L83.6 50.6 L0 99 L-83.6 50.6 L-83.6 -50.6 Z" fill="url(#vexGrad)"/>
+    <!-- carved V (tile dark) -->
+    <path d="M-50.6 -37.4 L-20.9 -37.4 L0 12.1 L20.9 -37.4 L50.6 -37.4 L0 63.8 Z" fill="#070a18"/>
+    <!-- spark accent -->
+    <path d="M118 -128 L127 -119 L136 -128 L145 -119 L136 -110 L145 -101 L136 -92 L127 -101 L118 -110 L127 -119 Z" fill="#22d3ee" opacity="0"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="480" y="452" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="900" letter-spacing="26" fill="#eef1fb">VEXORA</text>
+  <text x="480" y="494" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" letter-spacing="58" fill="#98a2c0">GAMES</text>
+
+  <!-- arabic name -->
+  <text x="480" y="546" text-anchor="middle" font-family="'Segoe UI','Noto Naskh Arabic',Tahoma,sans-serif" font-size="34" fill="#c9d2ee">فيكسورا</text>
+
+  <!-- tagline -->
+  <text x="480" y="592" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="12" fill="#5f6a8c">PLAY BEYOND LIMITS</text>
+</svg>

@@ -1,0 +1,33 @@
+# ============================================================
+# VEXORA — Render blueprint (FREE tier)
+# Free plan notes: service sleeps after 15 min idle (solved by
+# SELF_PING_URL) and the disk is EPHEMERAL (solved by hf-sync:
+# automatic SQLite backup/restore to a private HF repo).
+# ============================================================
+services:
+  - type: web
+    name: vexora
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci --omit=dev --no-audit --no-fund
+    startCommand: node server/index.js
+    healthCheckPath: /api/healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_PATH
+        value: /opt/render/project/src/data/vexora.db
+      - key: COOKIE_SECURE
+        value: "1"
+      - key: PAYMENTS_SIMULATE
+        value: "1"
+      - key: ADMIN_PASS        # set in dashboard → Environment
+        sync: false
+      - key: HF_TOKEN          # private HF token (DB backups)
+        sync: false
+      - key: HF_REPO           # e.g. YourName/vexora-db (private dataset)
+        sync: false
+      - key: SELF_PING_URL     # set to the live URL after first deploy (keeps free tier awake)
+        sync: false

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VEXORA Brand Guidelines — Visual Identity</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M48 4 L86 26 V70 L48 92 L10 70 V26 Z' fill='url(%23g)'/%3E%3Cpath d='M25 32 H38 L48 54 L58 32 H71 L48 76 Z' fill='%2305070f'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#05070f;--surface:rgba(16,19,38,.78);--line:rgba(150,163,220,.14);--line2:rgba(150,163,220,.26);
+  --text:#eef1fb;--muted:#98a2c0;--violet:#8b5cf6;--cyan:#22d3ee;--gold:#ffc945;
+  --grad:linear-gradient(135deg,#8b5cf6 0%,#6366f1 48%,#22d3ee 100%);
+  --grad-gold:linear-gradient(135deg,#ffe08a,#f59e0b);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Segoe UI",system-ui,Arial,sans-serif;background:
+  radial-gradient(1000px 600px at 85% -10%,rgba(99,102,241,.14),transparent 60%),
+  radial-gradient(800px 500px at -10% 40%,rgba(139,92,246,.1),transparent 60%),var(--bg);
+  color:var(--text);min-height:100vh}
+.wrap{width:min(1080px,100% - 40px);margin-inline:auto}
+header{border-bottom:1px solid var(--line);padding:26px 0;position:sticky;top:0;background:rgba(5,7,15,.85);backdrop-filter:blur(14px);z-index:5}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px}
+.logo .wm{font-size:22px;font-weight:900;letter-spacing:.24em}
+.logo .sub{display:block;font-size:8.5px;letter-spacing:.52em;color:var(--muted);font-weight:700}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--cyan)}
+h1{font-size:clamp(26px,4vw,42px);font-weight:900;text-transform:uppercase;letter-spacing:.03em;margin:10px 0 8px}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gold-text{background:var(--grad-gold);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--muted);font-size:15px;line-height:1.75;max-width:720px}
+section{margin-top:56px}
+h2{font-size:14px;letter-spacing:.22em;text-transform:uppercase;color:var(--text);display:flex;gap:10px;align-items:center;margin-bottom:18px}
+h2 .n{width:26px;height:26px;border-radius:8px;background:var(--grad);display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.g5{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.swatch{border-radius:14px;border:1px solid var(--line);overflow:hidden}
+.swatch .c{height:86px}
+.swatch .m{padding:12px 14px;background:rgba(10,13,28,.8)}
+.swatch b{font-size:13px;display:block}
+.swatch span{font-size:11.5px;color:var(--muted);font-family:Consolas,monospace}
+.logobox{border-radius:14px;display:flex;align-items:center;justify-content:center;min-height:200px;padding:20px}
+.lb-dark{background:linear-gradient(160deg,#0b0f24,#05070f);border:1px solid var(--line)}
+.lb-grad{background:var(--grad)}
+.lb-white{background:#f4f6ff}
+.lb-gold{background:linear-gradient(160deg,#3a2b05,#1a1202);border:1px solid rgba(255,201,69,.35)}
+.cap{font-size:12px;color:var(--muted);margin-top:10px;text-align:center}
+.wordmark{font-size:34px;font-weight:900;letter-spacing:.2em}
+.ar{direction:rtl;unicode-bidi:isolate;font-family:"Segoe UI","Noto Naskh Arabic",Tahoma,sans-serif}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;padding:10px 12px;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+td{padding:11px 12px;border-bottom:1px solid rgba(150,163,220,.08)}
+.tag{display:inline-block;padding:4px 11px;border-radius:99px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.ok{background:rgba(52,211,153,.13);color:#6ee7c0}
+.no{background:rgba(251,113,133,.13);color:#fda4af}
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rule{border-radius:14px;padding:18px;border:1px solid var(--line)}
+.rule.do{border-color:rgba(52,211,153,.35)}
+.rule.dont{border-color:rgba(251,113,133,.35)}
+.rule b{display:flex;gap:8px;align-items:center;margin-bottom:8px;font-size:13.5px;letter-spacing:.08em;text-transform:uppercase}
+.rule p{font-size:13px;color:var(--muted);line-height:1.7}
+footer{margin-top:70px;border-top:1px solid var(--line);padding:28px 0 40px;color:var(--muted);font-size:12.5px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.type-spec{border-left:3px solid var(--line2);padding:4px 0 4px 18px;margin-bottom:20px}
+.type-spec b{font-size:24px;display:block;margin:4px 0}
+.type-spec span{color:var(--muted);font-size:12.5px;font-family:Consolas,monospace}
+@media(max-width:720px){.rules{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap hd">
+  <div class="logo">
+    <svg width="44" height="44" viewBox="0 0 96 96"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset=".52" stop-color="#6366f1"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><path d="M48 3 L86 25 V71 L48 93 L10 71 V25 Z" fill="url(#g)"/><path d="M25 31 H38.5 L48 53.5 L57.5 31 H71 L48 77 Z" fill="#05070f"/></svg>
+    <div><span class="wm">VEXORA</span><span class="sub">BRAND GUIDELINES · V1.0</span></div>
+  </div>
+  <div class="eyebrow">Premium · Powerful · Gaming</div>
+</div></header>
+
+<div class="wrap">
+  <section style="margin-top:48px">
+    <div class="eyebrow">Introduction</div>
+    <h1>The <span class="grad-text">VEXORA</span> Identity</h1>
+    <p class="lead">VEXORA (فيكسورا) is an international premium gaming platform. The identity is built on one idea: <b style="color:var(--text)">a hexagon arena carved with the V</b> — a shield for competition, a vortex of energy. Deep space navy sets the premium stage; the violet→cyan energy gradient powers every accent; gold is reserved exclusively for VEXORA Coins and VIP.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">1</span> Logo Concept &amp; Variants</h2>
+    <div class="grid g2">
+      <div>
+        <div class="logobox lb-dark">
+          <div style="text-align:center">
+            <svg width="110" height="110" viewBox="0 0 96 96" style="margin:0 auto"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset=".52" stop-color="#6366f1"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><path d="M48 3 L86 25 V71 L48 93 L10 71 V25 Z" fill="url(#g1)"/><path d="M25 31 H38.5 L48 53.5 L57.5 31 H71 L48 77 Z" fill="#05070f"/></svg>
+            <div class="wordmark" style="margin-top:14px">VEXORA</div>
+            <div style="font-size:11px;letter-spacing:.5em;color:#98a2c0;font-weight:700;margin-top:4px;text-indent:.5em">GAMES</div>
+          </div>
+        </div>
+        <div class="cap">1.1 — Primary lockup (dark surfaces)</div>
+      </div>
+      <div>
+        <div class="logobox lb-dark" style="min-height:200px">
+          <div style="display:flex;gap:26px;align-items:center">
+            <svg width="84" height="84" viewBox="0 0 96 96"><path d="M48 3 L86 25 V71 L48 93 L10 71 V25 Z" fill="#ffffff"/><path d="M25 31 H38.5 L48 53.5 L57.5 31 H71 L48 77 Z" fill="#05070f"/></svg>
+            <svg width="84" height="84" viewBox="0 0 96 96"><path d="M48 3 L86 25 V71 L48 93 L10 71 V25 Z" fill="none" stroke="#22d3ee" stroke-width="5"/><path d="M25 31 H38.5 L48 53.5 L57.5 31 H71 L48 77 Z" fill="#22d3ee"/></svg>
+            <svg width="84" height="84" viewBox="0 0 96 96"><defs><linearGradient id="gc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs><circle cx="48" cy="48" r="42" fill="url(#gc)"/><circle cx="48" cy="48" r="34" fill="none" stroke="rgba(66,42,2,.35)" stroke-width="3"/><path d="M29 31 h10.8 L48 48.6 L56.2 31 H67 L48 66 Z" fill="#3a2703"/></svg>
+          </div>
+        </div>
+        <div class="cap">1.2 — Mono white · Line/cyan · VEXORA Coin mark</div>
+      </div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div>
+        <div class="logobox lb-grad"><div class="wordmark" style="color:#fff">VEXORA</div></div>
+        <div class="cap">1.3 — Wordmark on gradient (events, merch)</div>
+      </div>
+      <div>
+        <div class="logobox lb-gold"><div style="text-align:center"><span class="wordmark gold-text">VEXORA</span><div style="font-size:12px;letter-spacing:.3em;color:#ffc945;font-weight:800;margin-top:6px;text-indent:.3em">VIP · GOLD</div></div></div>
+        <div class="cap">1.4 — VIP tier expression (gold only)</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">2</span> Color System</h2>
+    <div class="grid g5">
+      <div class="swatch"><div class="c" style="background:#05070f;border-bottom:1px solid var(--line)"></div><div class="m"><b>Deep Space</b><span>#05070F</span></div></div>
+      <div class="swatch"><div class="c" style="background:#8b5cf6"></div><div class="m"><b>VEXORA Violet</b><span>#8B5CF6</span></div></div>
+      <div class="swatch"><div class="c" style="background:#6366f1"></div><div class="m"><b>Indigo Core</b><span>#6366F1</span></div></div>
+      <div class="swatch"><div class="c" style="background:#22d3ee"></div><div class="m"><b>Arena Cyan</b><span>#22D3EE</span></div></div>
+      <div class="swatch"><div class="c" style="background:linear-gradient(135deg,#ffe08a,#f59e0b)"></div><div class="m"><b>Coins Gold</b><span>#FFC945</span></div></div>
+    </div>
+    <p class="lead" style="margin-top:16px">The signature energy gradient runs violet → indigo → cyan at 135°. Gold appears <b style="color:var(--gold)">only</b> where money, coins, VIP or winning is communicated — this keeps it premium.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">3</span> Typography</h2>
+    <div class="card">
+      <div class="type-spec"><span>DISPLAY / HEADINGS — weight 800–900 · uppercase · wide tracking (.14–.34em)</span><b style="letter-spacing:.24em">VEXORA GAMES</b></div>
+      <div class="type-spec"><span>BODY — regular UI weight 400–600</span><b style="font-weight:600;font-size:18px;letter-spacing:0">Play beyond limits. One account for every arena.</b></div>
+      <div class="type-spec"><span>ARABIC — فيكسورا pairs with the Latin wordmark at equal or smaller size</span><b class="ar" style="font-weight:700">فيكسورا — العب بلا حدود</b></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">4</span> Naming System</h2>
+    <div class="card">
+      <table>
+        <tr><th>Asset</th><th>Name</th><th>Arabic</th><th>Usage</th></tr>
+        <tr><td>Platform</td><td><b>VEXORA Games</b></td><td class="ar">فيكسورا</td><td>Overall brand · browser titles · footers</td></tr>
+        <tr><td>Currency</td><td><b>VEXORA Coins</b> (VC)</td><td class="ar">عملات فيكسورا</td><td>Wallet · store · prizes</td></tr>
+        <tr><td>Shop</td><td><b>VEXORA Store</b></td><td class="ar">متجر فيكسورا</td><td>Checkout · receipts · promos</td></tr>
+        <tr><td>Events</td><td><b>VEXORA Championship Series</b></td><td class="ar">بطولة فيكسورا</td><td>Tournaments</td></tr>
+        <tr><td>Games</td><td><b>VEXORA + game name</b></td><td class="ar">مثال: طاولة فيكسورا</td><td>Every game title</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">5</span> Rules</h2>
+    <div class="rules">
+      <div class="rule do"><b style="color:#6ee7c0">✓ Do</b><p>Keep the hexagon intact, give the logo breathing room equal to the V's width, use the energy gradient for action and CTAs, pair VEXORA with فيكسورا on bilingual touchpoints.</p></div>
+      <div class="rule dont"><b style="color:#fda4af">✕ Don't</b><p>Never rotate or stretch the mark, never recolor the gradient, never use gold for non-monetary UI, never place the primary logo on busy imagery without a dark scrim, never abbreviate to "VX" in formal copy.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="n">6</span> Applied Across the Platform</h2>
+    <div class="card">
+      <table>
+        <tr><th>Touchpoint</th><th>Brand expression</th></tr>
+        <tr><td>Browser title &amp; favicon</td><td>VEXORA mark + “— VEXORA Games” suffix</td></tr>
+        <tr><td>Loading screens</td><td>Animated mark + staggered V-E-X-O-R-A letters + progress bar</td></tr>
+        <tr><td>Login / Register</td><td>Split brand panel · bilingual tagline · SecurePlay™</td></tr>
+        <tr><td>Lobby</td><td>“Where the world comes to play” · live counters · 12 VEXORA games</td></tr>
+        <tr><td>Store / Wallet</td><td>Gold system · VEXORA Coins iconography · streaks</td></tr>
+        <tr><td>Admin</td><td>VEXORA Control Center · live ops dashboards</td></tr>
+        <tr><td>Notifications</td><td>Icon-led VEXORA alerts · achievements · purchases</td></tr>
+        <tr><td>Footer / Mobile</td><td>Full brand bar · فيكسورا · responsive down to 360px</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <div>© 2026 VEXORA Entertainment — Brand Guidelines v1.0</div>
+    <div class="ar">فيكسورا · العب بلا حدود</div>
+  </footer>
+</div>
+</body>
+</html>

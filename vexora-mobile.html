@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#05070f">
+<title>فيكسورا | VEXORA — نسخة الجوال</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%2322d3ee'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M48 4 L86 26 V70 L48 92 L10 70 V26 Z' fill='url(%23g)'/%3E%3Cpath d='M25 32 H38 L48 54 L58 32 H71 L48 76 Z' fill='%2305070f'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#05070f;--surface:rgba(16,19,38,.82);--line:rgba(150,163,220,.14);--line2:rgba(150,163,220,.3);
+  --text:#eef1fb;--muted:#98a2c0;--violet:#8b5cf6;--cyan:#22d3ee;--gold:#ffc945;--green:#34d399;--red:#fb7185;
+  --grad:linear-gradient(135deg,#8b5cf6,#6366f1 48%,#22d3ee);--grad-gold:linear-gradient(135deg,#ffe08a,#f59e0b);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic",Arial,sans-serif;background:radial-gradient(700px 420px at 85% -10%,rgba(99,102,241,.16),transparent 60%),radial-gradient(600px 400px at -10% 40%,rgba(139,92,246,.12),transparent 60%),var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input{font-family:inherit;color:inherit}
+.num{direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
+.wrap{width:min(520px,100% - 24px);margin-inline:auto}
+#root{padding-bottom:86px}
+.appbar{position:sticky;top:0;z-index:40;background:rgba(5,7,15,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.appbar-in{display:flex;align-items:center;gap:10px;height:58px}
+.coinpill{display:flex;align-items:center;gap:6px;padding:7px 12px 7px 8px;border-radius:99px;background:rgba(255,201,69,.09);border:1px solid rgba(255,201,69,.32);color:var(--gold);font-weight:800;font-size:13.5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:13px;font-weight:800;font-size:14px;transition:.15s;border:1px solid transparent}
+.btn.primary{background:var(--grad);color:#fff;box-shadow:0 8px 22px rgba(99,102,241,.35)}
+.btn.primary:active{transform:scale(.97)}
+.btn.ghost{border-color:var(--line2);background:rgba(255,255,255,.03)}
+.btn.gold{background:var(--grad-gold);color:#241a02}
+.btn.small{padding:8px 14px;font-size:12.5px;border-radius:11px}
+.btn.wfull{width:100%}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--cyan)}
+h2.title{font-size:19px;font-weight:900;margin:6px 0 2px}
+.sub{color:var(--muted);font-size:12.5px;line-height:1.7}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--muted);margin-bottom:6px;text-transform:uppercase}
+.inp input{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line2);background:rgba(10,13,28,.7);color:var(--text);font-size:15px;outline:none}
+.inp input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(139,92,246,.16)}
+.fmsg{color:var(--red);font-size:11.5px;margin-top:5px;display:none}
+.fmsg.show{display:block}
+.ava{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#fff;background:var(--grad);flex-shrink:0}
+.ava.lg{width:74px;height:74px;border-radius:22px;font-size:32px}
+.gcard{display:flex;align-items:center;gap:13px;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--surface);margin-bottom:10px}
+.gcard:active{transform:scale(.985)}
+.gico{width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gcard b{font-size:15px}
+.gcard .onl{font-size:11.5px;color:var(--muted)}
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 2px;border-bottom:1px solid rgba(150,163,220,.09);font-size:13.5px}
+.stat-row:last-child{border:none}
+.stat-row b{font-size:14px}
+.tx-row{display:flex;align-items:center;gap:11px;padding:10px 2px;border-bottom:1px solid rgba(150,163,220,.09);font-size:13px}
+.tx-row:last-child{border:none}
+.plus{color:var(--green);font-weight:900}.minus{color:var(--red);font-weight:900}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(6,8,18,.96);backdrop-filter:blur(16px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
+.bottom-nav a{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:9.5px;font-weight:800}
+.bottom-nav a.active{color:var(--cyan)}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);z-index:200;background:#0d1126;border:1px solid var(--line2);border-radius:14px;padding:11px 18px;font-size:13px;max-width:88vw;animation:tin .25s}
+@keyframes tin{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+.c4-board{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;background:linear-gradient(160deg,#141936,#0d1126);padding:11px;border-radius:16px;border:1px solid var(--line2);margin:12px auto;max-width:340px}
+.c4-cell{aspect-ratio:1;border-radius:50%;background:rgba(5,7,15,.85);box-shadow:inset 0 2px 6px rgba(0,0,0,.55)}
+.c4-cell.p1{background:radial-gradient(circle at 35% 30%,#7de7f7,#0891b2);box-shadow:0 0 12px rgba(34,211,238,.5)}
+.c4-cell.p2{background:radial-gradient(circle at 35% 30%,#c4b5fd,#6d28d9);box-shadow:0 0 12px rgba(139,92,246,.55)}
+.c4-cell.win{animation:wp .8s infinite}@keyframes wp{50%{transform:scale(1.13)}}
+.c4-cell.hint{outline:2px dashed rgba(34,211,238,.5);outline-offset:-2px}
+.rv-board{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;background:linear-gradient(160deg,#0d3b2e,#07271e);padding:9px;border-radius:15px;border:1px solid rgba(52,211,153,.32);margin:12px auto;max-width:340px}
+.rv-cell{aspect-ratio:1;border-radius:50%;background:rgba(5,20,14,.65)}
+.rv-cell.hint{outline:2px dashed rgba(34,211,238,.55);outline-offset:-2px}
+.rv-cell.p1{background:radial-gradient(circle at 35% 30%,#1f2937,#04060d)}
+.rv-cell.p2{background:radial-gradient(circle at 35% 30%,#f8fafc,#cbd5e1)}
+.gstatus{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:13px;padding:11px 14px;font-size:13.5px;font-weight:700}
+.dotp{width:14px;height:14px;border-radius:50%;display:inline-block;vertical-align:-2px;margin-inline-end:6px}
+.d1{background:radial-gradient(circle at 35% 30%,#7de7f7,#0891b2)}.d2{background:radial-gradient(circle at 35% 30%,#c4b5fd,#6d28d9)}
+.pack-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.pack{padding:14px 10px;border-radius:15px;border:1px solid var(--line);background:var(--surface);text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+.pack .coins{font-weight:900;font-size:15px;color:var(--gold)}
+.pack .price{font-size:11.5px;color:var(--muted)}
+.cos-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.cos{padding:13px;border-radius:15px;border:1px solid var(--line);background:var(--surface);text-align:center;display:flex;flex-direction:column;gap:7px;align-items:center;font-size:12.5px}
+.owned{border-color:rgba(52,211,153,.4)}
+.tabs{display:flex;gap:5px;padding:5px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:13px;overflow-x:auto;margin:12px 0}
+.tabs button{padding:8px 13px;border-radius:10px;font-size:12.5px;font-weight:800;color:var(--muted);white-space:nowrap}
+.tabs button.on{background:var(--grad);color:#fff}
+.xp-bar{height:8px;border-radius:99px;background:rgba(150,163,220,.14);overflow:hidden;margin-top:6px}
+.xp-bar i{display:block;height:100%;background:var(--grad);border-radius:99px}
+.ach{display:flex;gap:10px;align-items:center;padding:9px 2px;font-size:13px}
+.ach.locked{opacity:.4}
+.boot{position:fixed;inset:0;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:radial-gradient(500px 340px at 50% 30%,#0b0f24,#05070f)}
+.wm{font-size:30px;font-weight:900;letter-spacing:.3em;text-indent:.3em}
+.wm span{opacity:0;animation:li .5s forwards}
+@keyframes li{to{opacity:1}}
+.tagline{font-size:10.5px;color:var(--muted);letter-spacing:.4em;text-indent:.4em;text-transform:uppercase}
+.bbar{width:210px;height:5px;border-radius:99px;background:rgba(150,163,220,.15);overflow:hidden}
+.bbar i{display:block;height:100%;width:0;background:var(--grad);animation:bl 1.6s ease forwards}
+@keyframes bl{to{width:100%}}
+.viptag{font-size:9.5px;font-weight:900;padding:3px 9px;border-radius:99px;background:var(--grad-gold);color:#241a02}
+.modal-ov{position:fixed;inset:0;z-index:150;background:rgba(3,5,14,.85);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.modal{width:min(480px,100%);background:#0b0e1f;border:1px solid var(--line2);border-radius:22px 22px 14px 14px;padding:20px;animation:min .22s}
+@keyframes min{from{transform:translateY(30px);opacity:0}}
+.warn-note{font-size:11px;color:var(--gold);background:rgba(255,201,69,.07);border:1px dashed rgba(255,201,69,.35);border-radius:10px;padding:8px 11px;line-height:1.7;margin-top:10px}
+.section{margin-top:18px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toasts"></div>
+<div id="modal-root"></div>
+<script>
+'use strict';
+/* ============================================================
+   VEXORA Mobile Edition — offline single file
+   Same brand/engines as the platform, runs entirely in the
+   browser (games vs the platform's AI strength, full coins/
+   store/wallet/profile). Data persists in localStorage when
+   available; multiplayer + cross-device accounts live on the
+   hosted platform (see DEPLOY.md).
+   ============================================================ */
+
+/* ---------- utils ---------- */
+const $ = s => document.querySelector(s);
+const fmt = n => Math.round(n).toLocaleString('en-US');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(t, sub, type){
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.style.borderColor = type === 'err' ? 'rgba(251,113,133,.5)' : type === 'coin' ? 'rgba(255,201,69,.5)' : 'var(--line2)';
+  el.innerHTML = '<b>' + esc(t) + '</b>' + (sub ? '<div style="color:var(--muted);font-size:12px;margin-top:2px">' + esc(sub) + '</div>' : '');
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+function openModal(html){ $('#modal-root').innerHTML = '<div class="modal-ov" onclick="if(event.target===this)closeModal()"><div class="modal">' + html + '</div></div>'; }
+function closeModal(){ $('#modal-root').innerHTML = ''; }
+
+/* ---------- brand ---------- */
+function mark(s){ return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 96 96" style="flex-shrink:0"><defs><linearGradient id="vm'+s+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset=".52" stop-color="#6366f1"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><path d="M48 3 L86 25 V71 L48 93 L10 71 V25 Z" fill="url(#vm'+s+')"/><path d="M25 31 H38.5 L48 53.5 L57.5 31 H71 L48 77 Z" fill="#05070f"/></svg>'; }
+function coin(s){ return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 40 40" style="flex-shrink:0;vertical-align:-3px"><defs><linearGradient id="vc'+s+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#f59e0b"/></linearGradient></defs><circle cx="20" cy="20" r="18" fill="url(#vc'+s+')"/><path d="M12 13h4.6L20 20l3.4-7H28l-8 15-8-15z" fill="#3a2703"/></svg>'; }
+
+/* ---------- storage (works even in sandboxed previews) ---------- */
+const MEM = {};
+const store = {
+  get(k){ try { return window.localStorage.getItem(k); } catch(e){ return (k in MEM) ? MEM[k] : null; } },
+  set(k, v){ try { window.localStorage.setItem(k, v); } catch(e){ MEM[k] = v; } }
+};
+const hash = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return 'h' + (h >>> 0).toString(36); };
+
+/* ---------- engines (same logic as the platform server) ---------- */
+const C4 = {
+  new(){ return { b: Array.from({length:6},()=>new Array(7).fill(0)), turn: 1, over: false, winner: 0, win: [], last: null }; },
+  play(st, slot, col){
+    if (st.over || st.turn !== slot) return false;
+    let row = -1;
+    for (let r = 5; r >= 0; r--){ if (!st.b[r][col]){ row = r; break; } }
+    if (row < 0) return false;
+    st.b[row][col] = slot; st.last = [row, col];
+    const w = C4.win(st.b, slot);
+    if (w){ st.over = true; st.winner = slot; st.win = w; return true; }
+    if (st.b.every(r => r.every(v => v))){ st.over = true; return true; }
+    st.turn = 3 - slot; return true;
+  },
+  win(b, p){
+    const dirs = [[0,1],[1,0],[1,1],[1,-1]];
+    for (let r = 0; r < 6; r++) for (let c = 0; c < 7; c++)
+      for (const d of dirs){
+        const cells = [[r,c]];
+        for (let k = 1; k < 4; k++){
+          const rr = r + d[0]*k, cc = c + d[1]*k;
+          if (rr<0||rr>5||cc<0||cc>6||b[rr][cc]!==p) break;
+          cells.push([rr,cc]);
+        }
+        if (cells.length === 4) return cells;
+      }
+    return null;
+  },
+  ai(st){
+    const order = [3,2,4,1,5,0,6];
+    for (const p of [2,1]) for (const c of order){
+      const t = { b: st.b.map(r => r.slice()), turn: p, over: false };
+      let row = -1; for (let r = 5; r >= 0; r--){ if (!t.b[r][c]){ row = r; break; } }
+      if (row < 0) continue;
+      t.b[row][c] = p; if (C4.win(t.b, p)) return c;
+    }
+    const open = order.filter(c => !st.b[0][c]);
+    return open.length ? open[Math.floor(Math.random()*open.length)] : -1;
+  }
+};
+const RV_DIRS = [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
+const RV_W = [[120,-20,20,5,5,20,-20,120],[-20,-40,-5,-5,-5,-5,-40,-20],[20,-5,15,3,3,15,-5,20],[5,-5,3,3,3,3,-5,5],[5,-5,3,3,3,3,-5,5],[20,-5,15,3,3,15,-5,20],[-20,-40,-5,-5,-5,-5,-40,-20],[120,-20,20,5,5,20,-20,120]];
+function rvFlips(b, r, c, p){
+  if (r<0||r>7||c<0||c>7||b[r][c]) return null;
+  const all = [];
+  for (const d of RV_DIRS){
+    const line = []; let x = r + d[0], y = c + d[1];
+    while (x>=0&&x<8&&y>=0&&y<8&&b[x][y]===3-p){ line.push(1); x+=d[0]; y+=d[1]; }
+    if (line.length && x>=0&&x<8&&y>=0&&y<8&&b[x][y]===p) all.push(1);
+  }
+  return all.length ? all : null;
+}
+const RV = {
+  new(){ const b = Array.from({length:8},()=>new Array(8).fill(0)); b[3][3]=2;b[3][4]=1;b[4][3]=1;b[4][4]=2; return { b, turn: 1, over: false, winner: 0, last: null, passes: 0 }; },
+  legal(st, p){ const out = []; for (let r=0;r<8;r++) for (let c=0;c<8;c++) if (!st.b[r][c] && rvFlips(st.b,r,c,p)) out.push([r,c]); return out; },
+  play(st, p, m){
+    if (st.over || st.turn !== p) return false;
+    const flips = rvFlips(st.b, m[0], m[1], p);
+    if (!flips) return false;
+    st.b[m[0]][m[1]] = p;
+    for (const d of RV_DIRS){
+      let x = m[0]+d[0], y = m[1]+d[1];
+      while (x>=0&&x<8&&y>=0&&y<8&&st.b[x][y]===3-p){ st.b[x][y]=p; x+=d[0]; y+=d[1]; }
+    }
+    st.last = m; st.passes = 0; st.turn = 3 - p;
+    if (st.b.every(r => r.every(v => v))) return RV.finish(st), true;
+    return true;
+  },
+  finish(st){ let a=0,b=0; st.b.forEach(r=>r.forEach(v=>{if(v===1)a++;else if(v===2)b++;})); st.over=true; st.winner = a>b?1:b>a?2:0; },
+  counts(st){ let a=0,b=0; st.b.forEach(r=>r.forEach(v=>{if(v===1)a++;else if(v===2)b++;})); return [a,b]; },
+  ai(st){
+    const moves = RV.legal(st, 2);
+    if (!moves.length) return null;
+    let best = null, bs = -1e9;
+    for (const m of moves){
+      const s = RV_W[m[0]][m[1]] * 10 - rvFlips(st.b,m[0],m[1],2).length * 2 + Math.random() * 8;
+      if (s > bs){ bs = s; best = m; }
+    }
+    return best;
+  }
+};
+
+/* ---------- local database ---------- */
+const DB_KEY = 'vexora_mobile_v1';
+let db = null;
+try { db = JSON.parse(store.get(DB_KEY)) || null; } catch(e){ db = null; }
+if (!db || !db.users) db = { users: [], session: null };
+function save(){ store.set(DB_KEY, JSON.stringify(db)); }
+function me(){ return db.users.find(u => u.n === db.session) || null; }
+function mkUser(n, p){
+  return { n, p: hash(p), coins: 1000, xp: 0, vip: null, streak: 0, best: 0,
+    w: { connect4: [0,0], reversi: [0,0] }, tx: [], inv: [], eq: {}, ach: [], daily: 0 };
+}
+function level(u){ return Math.floor(u.xp / 1000) + 1; }
+function vipMult(u){ return u.vip === 'plat' ? 5 : u.vip === 'gold' ? 3 : u.vip === 'silver' ? 2 : 1; }
+function wallet(u, delta, reason){ u.coins += delta; u.tx.unshift({ r: reason, d: delta, t: Date.now() }); if (u.tx.length > 60) u.tx.length = 60; }
+function addXp(u, n){ u.xp += n; }
+function grantAch(u, id, name){
+  if (u.ach.indexOf(id) >= 0) return;
+  u.ach.push(id);
+  toast('إنجاز جديد: ' + name, '', 'coin');
+}
+
+/* ---------- catalog ---------- */
+const PACKS = [ {c:5000,b:0,p:'$4.99'},{c:11000,b:10,p:'$9.99'},{c:30000,b:20,p:'$19.99'},{c:81000,b:35,p:'$44.99'},{c:256000,b:60,p:'$99.99'} ];
+const VIPS = [ {id:'silver',n:'فضية',m:2,cost:25000},{id:'gold',n:'ذهبية',m:3,cost:60000},{id:'plat',n:'بلاتينية',m:5,cost:120000} ];
+const STICKS = [ {id:'st1',n:'عصية السديم',cost:2500},{id:'st2',n:'عصية الشفق',cost:4000},{id:'st3',n:'عصية التنين',cost:6000},{id:'st4',n:'عصية الشبح',cost:9000} ];
+const EMOJIS = [ {id:'vex',n:'وجوه فيكسورا الأساسية',cost:0,e:'🎮🔥😂😮😢👋'},{id:'em1',n:'حزمة الذهب',cost:1800,e:'👑💎🏆🥇💰⚡'},{id:'em2',n:'حزمة النيون',cost:2200,e:'😎🤖👾🚀🌟🎯'},{id:'em3',n:'حزمة الكاواي',cost:2600,e:'🥰🐱🍓🎈🎁🦄'} ];
+
+/* ---------- state + router ---------- */
+const S = { route: 'boot', storeTab: 'packs', game: null, gameKind: 'connect4' };
+function navigate(r){ S.route = r; render(); window.scrollTo(0,0); }
+
+/* ---------- boot ---------- */
+function viewBoot(){
+  const letters = 'VEXORA'.split('').map((ch,i) => '<span style="animation-delay:'+(0.2+i*0.08)+'s" class="grad-text">'+ch+'</span>').join('');
+  setTimeout(() => navigate(me() ? 'lobby' : 'auth'), 1800);
+  return '<div class="boot">' + mark(96) + '<div class="wm">' + letters + '</div>'
+    + '<div class="tagline">نسخة الجوال · العب بلا حدود</div><div class="bbar"><i></i></div></div>';
+}
+
+/* ---------- auth ---------- */
+function viewAuth(){
+  return '<div class="wrap" style="padding-top:34px">'
+    + '<div style="text-align:center;margin-bottom:22px">' + mark(64) + '<div class="wm" style="font-size:24px;margin-top:10px">VEXORA</div><div class="tagline">فيكسورا · نسخة الجوال</div></div>'
+    + '<div class="card">'
+    + '<div class="eyebrow">حساب جديد</div>'
+    + '<div class="field" style="margin-top:10px"><label>اسم المستخدم</label><div class="inp"><input id="rg-u" placeholder="٣-٢٠ حرفًا" maxlength="20"></div><div class="fmsg" id="e1"></div></div>'
+    + '<div class="field"><label>كلمة المرور</label><div class="inp"><input id="rg-p" type="password" placeholder="٦ أحرف على الأقل"></div><div class="fmsg" id="e2"></div></div>'
+    + '<button class="btn primary wfull" onclick="doRegister()">إنشاء حساب + <span class="num">1,000</span> عملة</button>'
+    + '<div style="text-align:center;color:var(--muted);font-size:12px;margin:14px 0">لديك حساب؟</div>'
+    + '<div class="field" style="margin:0"><div class="inp"><input id="lg-n" placeholder="اسم المستخدم"></div></div>'
+    + '<div class="field"><div class="inp"><input id="lg-p" type="password" placeholder="كلمة المرور"></div><div class="fmsg" id="e3"></div></div>'
+    + '<button class="btn ghost wfull" onclick="doLogin()">تسجيل الدخول</button>'
+    + '<div class="warn-note">نسخة الجوال تعمل داخل متصفحك فقط: الحسابات والعملات تُحفظ على جهازك، والمطابعة ضد خصم حقيقي متاحة في نسخة المنصة الكاملة.</div>'
+    + '</div></div>';
+}
+function ferr(id, m){ const e = $('#' + id); if (e){ e.textContent = m; e.classList.add('show'); } }
+function doRegister(){
+  const n = ($('#rg-u').value || '').trim(), p = $('#rg-p').value || '';
+  const re = /^[A-Za-z0-9_\u0600-\u06FF]{3,20}$/;
+  if (!re.test(n)) return ferr('e1', 'الاسم يجب أن يكون ٣–٢٠ حرفًا إنجليزيًا أو عربيًا مع _');
+  if (db.users.some(u => u.n.toLowerCase() === n.toLowerCase())) return ferr('e1', 'الاسم محجوز — جرّب غيره');
+  if (p.length < 6) return ferr('e2', 'كلمة المرور ٦ أحرف على الأقل');
+  const u = mkUser(n, p);
+  db.users.push(u); db.session = n; save();
+  toast('أهلاً بك في فيكسورا 🎮', '+1,000 عملة ترحيبية', 'coin');
+  navigate('lobby');
+}
+function doLogin(){
+  const n = ($('#lg-n').value || '').trim(), p = $('#lg-p').value || '';
+  const u = db.users.find(x => x.n.toLowerCase() === n.toLowerCase());
+  if (!u || u.p !== hash(p)) return ferr('e3', 'بيانات غير صحيحة');
+  db.session = n; save();
+  toast('أهلاً بعودتك، ' + u.n, '', 'coin');
+  navigate('lobby');
+}
+function logout(){ db.session = null; save(); navigate('auth'); }
+
+/* ---------- shell ---------- */
+function shell(body, title){
+  document.title = (title || 'فيكسورا') + ' | VEXORA';
+  const u = me();
+  const nav = (r, lbl) => '<a class="' + (S.route === r ? 'active' : '') + '" onclick="navigate(\'' + r + '\')">' + lbl + '</a>';
+  return '<div class="appbar"><div class="wrap appbar-in">'
+    + '<a onclick="navigate(\'lobby\')" style="display:flex;align-items:center;gap:8px">' + mark(34) + '<b style="font-size:16px;letter-spacing:.16em">VEXORA</b></a>'
+    + '<div style="flex:1"></div>'
+    + '<span class="coinpill">' + coin(17) + '<span class="num">' + fmt(u.coins) + '</span></span>'
+    + '<span class="ava" style="width:36px;height:36px;font-size:15px" onclick="navigate(\'profile\')">' + esc(u.n[0].toUpperCase()) + '</span>'
+    + '</div></div>'
+    + '<div class="wrap" style="padding-top:16px">' + body + '</div>'
+    + '<div class="bottom-nav">'
+    + nav('lobby', '🏠<div>اللوبي</div>') + nav('game', '🎮<div>العب</div>') + nav('store', '🛒<div>المتجر</div>') + nav('wallet', '👛<div>المحفظة</div>') + nav('profile', '👤<div>ملفي</div>')
+    + '</div>';
+}
+
+/* ---------- lobby ---------- */
+function viewLobby(){
+  const u = me();
+  return shell(
+    '<div class="card" style="background:linear-gradient(135deg,rgba(139,92,246,.22),rgba(34,211,238,.1))">'
+    + '<div class="eyebrow">أهلاً، ' + esc(u.n) + '</div>'
+    + '<h2 class="title">حلبة فيكسورا في جيبك</h2>'
+    + '<div class="sub">لعبان كاملان ضد ذكاء المنصة نفسه، مع اقتصاد عملات حقيقي على جهازك.</div>'
+    + '<button class="btn primary wfull" style="margin-top:12px" onclick="startGame(\'connect4\')">⚡ مباراة كونكت سريعة</button></div>'
+    + '<div class="section">'
+    + gCard('connect4', 'فيكسورا كونكت', 'أربعة تربح · دخول 100 · جائزة 150', '#20306b', '#22d3ee')
+    + gCard('reversi', 'أوثيلو (Reversi)', 'اقلب الأقراص · دخول 100 · جائزة 150', '#0d3b2e', '#34d399')
+    + '</div>'
+    + '<div class="card section" style="text-align:center">'
+    + '<div style="font-size:12px;color:var(--muted);line-height:1.8">النسخة الكاملة متعددة اللاعبين (مطابقة حية + أصدقاء + متجر سيرفر) تعمل على خادم فيكسورا — الحزمة الكاملة في ملف <b>VEXORA-complete.zip</b></div></div>',
+    'اللوبي');
+}
+function gCard(id, name, sub, bg, col){
+  return '<div class="gcard" onclick="startGame(\'' + id + '\')">'
+    + '<div class="gico" style="background:' + bg + ';color:' + col + '"><svg width="30" height="30" viewBox="0 0 48 48">'
+    + (id === 'reversi'
+       ? '<circle cx="18" cy="18" r="6" fill="#0b0e1c" stroke="#e2e8f0"/><circle cx="30" cy="30" r="6" fill="#f8fafc"/><circle cx="30" cy="18" r="6" fill="#f8fafc"/><circle cx="18" cy="30" r="6" fill="#0b0e1c" stroke="#e2e8f0"/>'
+       : '<circle cx="15" cy="16" r="5.5" fill="#22d3ee"/><circle cx="27" cy="16" r="5.5" fill="#8b5cf6"/><circle cx="39" cy="16" r="5.5" fill="#22d3ee"/><circle cx="21" cy="29" r="5.5" fill="#22d3ee"/><circle cx="33" cy="29" r="5.5" fill="#8b5cf6"/><circle cx="27" cy="40" r="5" fill="#22d3ee"/>')
+    + '</svg></div>'
+    + '<div style="flex:1"><b>' + name + '</b><div class="onl">' + sub + '</div></div>'
+    + '<button class="btn primary small">العب</button></div>';
+}
+
+/* ---------- game (vs platform AI) ---------- */
+const ENTRY = 100, AI_PRIZE = 150;
+function startGame(kind){
+  const u = me();
+  if (u.coins < ENTRY) return toast('رصيدك لا يكفي', 'اشحن من المتجر (مجاني في نسخة الجوال)', 'err');
+  wallet(u, -ENTRY, 'دخول مباراة ' + (kind === 'reversi' ? 'أوثيلو' : 'كونكت'));
+  S.gameKind = kind;
+  S.game = kind === 'reversi' ? RV.new() : C4.new();
+  save();
+  navigate('game');
+}
+function viewGame(){
+  const u = me();
+  if (!S.game) return shell(
+    '<div class="card" style="text-align:center"><div style="font-size:40px;margin-bottom:8px">🎮</div><b>اختر لعبة لتبدأ</b><div class="sub" style="margin:8px 0 14px">دخول ' + ENTRY + ' عملة · الفوز +' + AI_PRIZE + ' عملة و +60 XP</div>'
+    + '<button class="btn primary wfull" onclick="startGame(\'connect4\')">⚡ فيكسورا كونكت</button>'
+    + '<button class="btn ghost wfull" style="margin-top:9px" onclick="startGame(\'reversi\')">⚫ أوثيلو (Reversi)</button></div>', 'العب');
+  return shell(gameBody(), 'العب');
+}
+function gameBody(){
+  const g = S.game, u = me();
+  if (S.gameKind === 'reversi'){
+    const myTurn = !g.over && g.turn === 1;
+    const legal = myTurn ? RV.legal(g, 1) : [];
+    const set = {}; legal.forEach(m => set[m[0] + '-' + m[1]] = 1);
+    const [a, b] = RV.counts(g);
+    const board = '<div class="rv-board">' + g.b.map((row, r) => row.map((c, ci) =>
+      '<div class="rv-cell' + (c === 1 ? ' p1' : c === 2 ? ' p2' : '') + (set[r + '-' + ci] ? ' hint' : '') + '"' + (set[r + '-' + ci] ? ' onclick="rvMove(' + r + ',' + ci + ')"' : '') + '></div>').join('')).join('') + '</div>';
+    const status = g.over
+      ? '<b style="color:' + (g.winner === 1 ? 'var(--green)' : g.winner === 2 ? 'var(--red)' : 'var(--gold)') + '">' + (g.winner === 1 ? '🏆 فزت! +' + AI_PRIZE + ' عملة' : g.winner === 2 ? 'خسرت هذه المرة' : 'تعادل') + '</b>'
+      : '<span>' + (myTurn ? '<span class="dotp d1"></span><b>دورك</b>' : '<span class="dotp d2"></span>دور الحاسوب…') + '</span>'
+        + '<span class="num" style="color:var(--muted);font-size:12px">' + a + ' - ' + b + '</span>';
+    return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b>' + (S.gameKind === 'reversi' ? 'أوثيلو' : 'فيكسورا كونكت') + '</b>'
+      + '<span style="font-size:11.5px;color:var(--muted)">دخول ' + ENTRY + ' · جائزة ' + AI_PRIZE + '</span></div>'
+      + '<div class="gstatus" style="margin-top:8px">' + status + '</div>' + board
+      + (g.over ? endButtons() : '') + '</div>';
+  }
+  const myTurn = !g.over && g.turn === 1;
+  const winSet = {}; (g.win || []).forEach(w => winSet[w[0] + '-' + w[1]] = 1);
+  const hints = myTurn ? [0,1,2,3,4,5,6].filter(c => !g.b[0][c]) : [];
+  const board = '<div class="c4-board">' + g.b.map((row, r) => row.map((c, ci) =>
+    '<div class="c4-cell' + (c === 1 ? ' p1' : c === 2 ? ' p2' : '') + (winSet[r + '-' + ci] ? ' win' : '') + '"' + (hints.indexOf(ci) >= 0 ? ' onclick="c4Move(' + ci + ')"' : '') + '></div>').join('')).join('') + '</div>';
+  const status = g.over
+    ? '<b style="color:' + (g.winner === 1 ? 'var(--green)' : g.winner === 2 ? 'var(--red)' : 'var(--gold)') + '">' + (g.winner === 1 ? '🏆 فزت! +' + AI_PRIZE + ' عملة' : g.winner === 2 ? 'خسرت هذه المرة' : 'تعادل — استُرجع الدخول') + '</b>'
+    : (myTurn ? '<span class="dotp d1"></span><b>دورك</b> — اختر عمودًا' : '<span class="dotp d2"></span>دور الحاسوب…');
+  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>فيكسورا كونكت</b><span style="font-size:11.5px;color:var(--muted)">دخول ' + ENTRY + ' · جائزة ' + AI_PRIZE + '</span></div>'
+    + '<div class="gstatus" style="margin:8px 0">' + status + '</div>' + board + (g.over ? endButtons() : '') + '</div>';
+}
+function endButtons(){
+  return '<div style="display:flex;gap:8px;margin-top:6px">'
+    + '<button class="btn ghost wfull" onclick="S.game=null;render()">خروج</button>'
+    + '<button class="btn primary wfull" onclick="startGame(S.gameKind)">مباراة جديدة (' + ENTRY + ')</button></div>';
+}
+function c4Move(col){
+  const g = S.game;
+  if (!g || g.over || g.turn !== 1) return;
+  if (!C4.play(g, 1, col)) return;
+  if (g.over){ settle(g); save(); render(); return; }
+  render();
+  setTimeout(() => {
+    const c = C4.ai(g);
+    if (c >= 0) C4.play(g, 2, c);
+    if (g.over) settle(g);
+    save(); if (S.route === 'game') render();
+  }, 550);
+}
+function rvMove(r, c){
+  const g = S.game;
+  if (!g || g.over || g.turn !== 1) return;
+  if (!RV.play(g, 1, [r, c])) return toast('حركة غير قانونية', 'يجب أن تقلب قرصًا واحدًا على الأقل', 'err');
+  if (g.over){ settle(g); save(); render(); return; }
+  render();
+  setTimeout(aiTurn, 600);
+}
+function aiTurn(){
+  const g = S.game;
+  if (!g || g.over || g.turn !== 2) return;
+  const m = RV.ai(g);
+  if (m) RV.play(g, 2, m);
+  let guard = 0;
+  while (!g.over && RV.legal(g, 1).length === 0 && RV.legal(g, 2).length > 0 && guard++ < 8){
+    g.turn = 2;
+    const m2 = RV.ai(g);
+    if (!m2) break;
+    RV.play(g, 2, m2);
+  }
+  if (!g.over && RV.legal(g, 1).length === 0 && RV.legal(g, 2).length === 0) RV.finish(g);
+  if (g.over) settle(g);
+  save();
+  if (S.route === 'game') render();
+}
+function settle(g){
+  const u = me();
+  if (g.winner === 1){
+    wallet(u, AI_PRIZE, 'جائزة الفوز'); addXp(u, 60);
+    u.w[S.gameKind][0]++; u.streak++; u.best = Math.max(u.best, u.streak);
+    if (u.w[S.gameKind][0] === 1) grantAch(u, 'first', 'أول فوز');
+    if (u.streak >= 3) grantAch(u, 'streak', 'ثلاثية نارية');
+    if (u.coins >= 25000) grantAch(u, 'rich', 'ثري فيكسورا');
+    toast('فوز رائع! 🏆', '+' + AI_PRIZE + ' عملة و +60 XP', 'coin');
+  } else if (g.winner === 2){
+    addXp(u, 15); u.w[S.gameKind][1]++; u.streak = 0;
+    toast('خسارة', 'جرّب مجددًا — +15 XP', 'err');
+  } else {
+    wallet(u, ENTRY, 'استرجاع تعادل');
+  }
+}
+
+/* ---------- store ---------- */
+function viewStore(){
+  const u = me();
+  const t = (id, lbl) => '<button class="' + (S.storeTab === id ? 'on' : '') + '" onclick="S.storeTab=\'' + id + '\';render()">' + lbl + '</button>';
+  let body = '';
+  if (S.storeTab === 'packs') body = '<div class="pack-grid">' + PACKS.map((p, i) =>
+    '<div class="pack">' + coin(30) + '<div class="coins num">' + fmt(p.c) + '</div>'
+    + (p.b ? '<div style="font-size:11px;color:var(--green)">+' + p.b + '% إضافية</div>' : '')
+    + '<div class="price num">' + p.p + '</div>'
+    + '<button class="btn gold small wfull" onclick="buyPack(' + i + ')">اشحن (تجريبي)</button></div>').join('') + '</div>';
+  if (S.storeTab === 'vip') body = VIPS.map(v =>
+    '<div class="card" style="margin-bottom:10px;display:flex;align-items:center;gap:12px">'
+    + '<div style="font-size:24px">' + (v.id === 'plat' ? '⚡' : v.id === 'gold' ? '👑' : '⭐') + '</div>'
+    + '<div style="flex:1"><b>عضوية ' + v.n + ' VIP</b><div class="sub">مكافأة يومية ×' + v.m + ' · شارة مميزة</div></div>'
+    + (u.vip === v.id ? '<span class="viptag">فعّالة</span>'
+      : '<button class="btn primary small" onclick="buyVip(\'' + v.id + '\')">' + coin(13) + ' <span class="num">' + fmt(v.cost) + '</span></button></div>')).join('');
+  if (S.storeTab === 'sticks') body = '<div class="cos-grid">' + STICKS.map(s =>
+    '<div class="cos' + (u.inv.indexOf(s.id) >= 0 ? ' owned' : '') + '"><div style="font-size:26px">🎱</div><b>' + s.n + '</b>'
+    + (u.inv.indexOf(s.id) >= 0
+      ? '<span style="font-size:11px;color:var(--green)">تملكها' + (u.eq.stick === s.id ? ' ✓ مجهزة' : '') + '</span>'
+      : '<button class="btn ghost small" onclick="buyItem(\'' + s.id + '\',' + s.cost + ',\'stick\',\'' + s.n + '\')">' + coin(12) + ' <span class="num">' + fmt(s.cost) + '</span></button>')
+    + '</div>').join('') + '</div>';
+  if (S.storeTab === 'emoji') body = '<div class="cos-grid">' + EMOJIS.map(e =>
+    '<div class="cos' + (e.cost === 0 || u.inv.indexOf(e.id) >= 0 ? ' owned' : '') + '"><div style="font-size:20px;letter-spacing:2px">' + e.e.slice(0, 3) + '</div><b style="font-size:12px">' + e.n + '</b>'
+    + (e.cost === 0 || u.inv.indexOf(e.id) >= 0 ? '<span style="font-size:11px;color:var(--green)">تملكها</span>'
+      : '<button class="btn ghost small" onclick="buyItem(\'' + e.id + '\',' + e.cost + ',\'emoji\',\'' + e.n + '\')">' + coin(12) + ' <span class="num">' + fmt(e.cost) + '</span></button>')
+    + '</div>').join('') + '</div>';
+  return shell(
+    '<h2 class="title">متجر فيكسورا</h2><div class="sub">كل المشتريات تُسجَّل في محفظتك على جهازك</div>'
+    + '<div class="tabs">' + t('packs', 'العملات') + t('vip', 'VIP') + t('sticks', 'العصي') + t('emoji', 'الإيموجي') + '</div>'
+    + body
+    + '<div class="warn-note">في نسخة الجوال، حزم العملات مجانية (وضع تجريبي) — في المنصة الكاملة تُدار العملات على الخادم مع دفع حقيقي.</div>',
+    'المتجر');
+}
+function buyPack(i){
+  const u = me(); const p = PACKS[i];
+  wallet(u, p.c, 'حزمة ' + fmt(p.c) + ' (تجريبية)');
+  save(); render();
+  toast('+' + fmt(p.c) + ' عملة', 'أُضيفت لمحفظتك', 'coin');
+}
+function buyVip(id){
+  const v = VIPS.find(x => x.id === id); const u = me();
+  if (u.coins < v.cost) return toast('رصيدك لا يكفي', 'تحتاج ' + fmt(v.cost - u.coins) + ' عملة إضافية', 'err');
+  wallet(u, -v.cost, 'عضوية ' + v.n + ' VIP');
+  u.vip = id; save(); render();
+  toast('عضوية ' + v.n + ' فعّالة ✓', 'المكافأة اليومية ×' + v.m, 'coin');
+}
+function buyItem(id, cost, kind, name){
+  const u = me();
+  if (u.coins < cost) return toast('رصيدك لا يكفي', '', 'err');
+  wallet(u, -cost, 'شراء ' + name);
+  u.inv.push(id);
+  if (kind === 'stick') u.eq.stick = id;
+  save(); render();
+  toast('تم الشراء ✓', name, 'coin');
+}
+
+/* ---------- wallet ---------- */
+function viewWallet(){
+  const u = me();
+  const canDaily = Date.now() - u.daily > 12 * 3600e3;
+  const amt = 500 * vipMult(u);
+  return shell(
+    '<div class="card" style="border-color:rgba(255,201,69,.35);background:linear-gradient(135deg,rgba(255,201,69,.13),transparent)">'
+    + '<div class="eyebrow" style="color:var(--gold)">محفظة عملات فيكسورا</div>'
+    + '<div style="font-size:34px;font-weight:900;color:var(--gold);margin:8px 0">' + coin(30) + ' <span class="num">' + fmt(u.coins) + '</span></div>'
+    + '<div class="sub">محفوظة على جهازك · كل حركة مسجلة بالأسفل</div>'
+    + '<div style="display:flex;gap:8px;margin-top:12px">'
+    + '<button class="btn ' + (canDaily ? 'primary' : 'ghost') + '" style="flex:1" ' + (canDaily ? '' : 'disabled') + ' onclick="claimDaily()">🎁 ' + (canDaily ? 'المكافأة اليومية +' + fmt(amt) : 'استلمتها اليوم') + '</button>'
+    + '<button class="btn gold" onclick="navigate(\'store\')">شحن</button></div></div>'
+    + '<div class="card section"><b style="font-size:13.5px">سجل المعاملات</b>'
+    + (u.tx.length ? u.tx.slice(0, 25).map(t => '<div class="tx-row"><div style="flex:1"><div>' + esc(t.r) + '</div><div style="font-size:10.5px;color:var(--muted)">' + new Date(t.t).toLocaleString('ar') + '</div></div>'
+        + '<b class="num ' + (t.d >= 0 ? 'plus' : 'minus') + '">' + (t.d >= 0 ? '+' : '−') + fmt(Math.abs(t.d)) + '</b></div>').join('')
+      : '<div class="sub" style="padding:10px 0">لا معاملات بعد</div>')
+    + '</div>', 'المحفظة');
+}
+function claimDaily(){
+  const u = me();
+  if (Date.now() - u.daily <= 12 * 3600e3) return;
+  const amt = 500 * vipMult(u);
+  u.daily = Date.now();
+  wallet(u, amt, 'المكافأة اليومية' + (vipMult(u) > 1 ? ' ×' + vipMult(u) : ''));
+  save(); render();
+  toast('+' + fmt(amt) + ' عملة', 'المكافأة اليومية', 'coin');
+}
+
+/* ---------- profile ---------- */
+function viewProfile(){
+  const u = me();
+  const tw = u.w.connect4[0] + u.w.reversi[0], tl = u.w.connect4[1] + u.w.reversi[1];
+  const wr = tw + tl ? Math.round(tw / (tw + tl) * 100) : 0;
+  const ACH = [['first', 'أول فوز', '🏆'], ['streak', 'ثلاثية نارية', '🔥'], ['rich', 'ثري فيكسورا', '💎']];
+  return shell(
+    '<div class="card" style="display:flex;gap:14px;align-items:center">'
+    + '<div class="ava lg">' + esc(u.n[0].toUpperCase()) + '</div>'
+    + '<div style="flex:1"><div style="display:flex;align-items:center;gap:8px"><b style="font-size:17px">' + esc(u.n) + '</b>' + (u.vip ? '<span class="viptag">' + u.vip.toUpperCase() + '</span>' : '') + '</div>'
+    + '<div class="sub">المستوى ' + level(u) + ' · XP <span class="num">' + fmt(u.xp) + '</span></div>'
+    + '<div class="xp-bar"><i style="width:' + (u.xp % 1000) / 10 + '%"></i></div></div>'
+    + '<button class="btn ghost small" onclick="logout()">خروج</button></div>'
+    + '<div class="card section"><b style="font-size:13.5px">إحصائياتي</b>'
+    + '<div class="stat-row"><span>انتصارات / خسارات</span><b class="num" style="color:var(--green)">' + tw + '</b><b class="num" style="color:var(--red)">' + tl + '</b></div>'
+    + '<div class="stat-row"><span>نسبة الفوز</span><b class="num">' + wr + '%</b></div>'
+    + '<div class="stat-row"><span>كونكت (ف/خ)</span><b class="num">' + u.w.connect4[0] + ' / ' + u.w.connect4[1] + '</b></div>'
+    + '<div class="stat-row"><span>أوثيلو (ف/خ)</span><b class="num">' + u.w.reversi[0] + ' / ' + u.w.reversi[1] + '</b></div>'
+    + '<div class="stat-row"><span>أطول سلسلة</span><b class="num" style="color:var(--gold)">' + u.best + '</b></div></div>'
+    + '<div class="card section"><b style="font-size:13.5px">الإنجازات</b>'
+    + ACH.map(a => '<div class="ach' + (u.ach.indexOf(a[0]) >= 0 ? '' : ' locked') + '"><span style="font-size:20px">' + a[2] + '</span><span>' + a[1] + '</span></div>').join('')
+    + '</div>'
+    + '<div class="card section"><b style="font-size:13.5px">جردي</b>'
+    + (u.inv.length ? u.inv.map(id => {
+        const s = STICKS.find(x => x.id === id); const e = EMOJIS.find(x => x.id === id);
+        return '<div class="ach"><span style="font-size:20px">' + (s ? '🎱' : '😀') + '</span><span>' + ((s || e).n) + (u.eq.stick === id ? ' ✓' : '') + '</span></div>';
+      }).join('') : '<div class="sub" style="padding:8px 0">لا تملك عناصر بعد — تفقد المتجر</div>')
+    + '</div>', 'ملفي');
+}
+
+/* ---------- render ---------- */
+function render(){
+  const views = { boot: viewBoot, auth: viewAuth, lobby: viewLobby, game: viewGame, store: viewStore, wallet: viewWallet, profile: viewProfile };
+  $('#root').innerHTML = (views[S.route] || viewLobby)();
+}
+render();
+
+/* test/debug accessors (read-only) */
+window.VX = { get db(){ return db; }, get S(){ return S; }, me, C4, RV, fmt, save };
+
+</script>
+</body>
+</html>
