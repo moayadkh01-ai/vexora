@@ -158,3 +158,56 @@ table.adm th{text-align:left;padding:7px;border-bottom:1px solid var(--line);col
 table.adm td{padding:6px 7px;border-bottom:1px solid rgba(212,175,55,.05);white-space:nowrap}
 .bar{height:4px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden;margin-top:4px}
 .bar i{display:block;height:100%;background:var(--grad)}
+
+
+/* ============================================================
+   NoirCue Luxury Ambient — Dark Obsidian & Gold
+   ============================================================ */
+body {
+  background:
+    radial-gradient(900px 500px at 80% -10%, rgba(212,175,55,.05), transparent 60%),
+    radial-gradient(600px 350px at 10% 60%, rgba(212,175,55,.02), transparent 60%),
+    radial-gradient(400px 250px at 50% 100%, rgba(212,175,55,.03), transparent 60%),
+    #060608 !important;
+}
+
+/* floating gold dust particles (pure CSS, zero perf cost) */
+.gold-dust {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.gold-dust .gd {
+  position: absolute; border-radius: 50%; background: rgba(212,175,55,var(--o,.3));
+  filter: blur(var(--b,.5px)); animation: gdFloat var(--d,12s) ease-in-out infinite alternate;
+  box-shadow: 0 0 6px rgba(212,175,55,.2);
+}
+@keyframes gdFloat {
+  0%   { transform: translate(0,0) scale(1); opacity: var(--o,.3); }
+  50%  { transform: translate(var(--tx,20px), calc(var(--ty,-40px) * .5)) scale(1.15); opacity: calc(var(--o,.3) * 1.4); }
+  100% { transform: translate(calc(var(--tx,20px) * -1), var(--ty,-40px)) scale(.9); opacity: calc(var(--o,.3) * .7); }
+}
+
+/* auth screen luxury glow ring */
+.auth-glow {
+  position: relative;
+}
+.auth-glow::before {
+  content: ""; position: absolute; inset: -20px; z-index: -1; border-radius: 50%;
+  background: radial-gradient(circle, rgba(212,175,55,.08), transparent 70%);
+  animation: authPulse 3s ease-in-out infinite alternate;
+}
+@keyframes authPulse { to { transform: scale(1.08); opacity: .7; } }
+
+/* pool canvas container — exact viewport spec */
+.poolcv {
+  max-width: 420px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.pool-stage {
+  height: calc(100vh - 140px);
+  max-width: 420px;
+  margin: 0 auto;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}

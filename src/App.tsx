@@ -67,6 +67,7 @@ export default function App() {
 
   return (
     <>
+      <GoldDust />
       <header className="appbar">
         <div><span className="brand">NoirCue</span> <span className="brand-ar">نواركيو</span></div>
         <span className="coinpill"><span className="coin-ic"></span><span className="num">{fmt(me.coins)}</span></span>
@@ -102,3 +103,31 @@ function Boot() {
   );
 }
 export { toast };
+
+
+/* 14 gold dust particles — deterministic positions, zero re-render cost */
+function GoldDust() {
+  const particles = Array.from({ length: 14 }, (_, i) => ({
+    left: (i * 37 + 13) % 100,
+    top: (i * 53 + 7) % 100,
+    size: 2 + (i % 3),
+    opacity: 0.15 + (i % 4) * 0.07,
+    duration: 10 + (i % 5) * 3,
+    delay: i * 0.8,
+    tx: ((i % 5) - 2) * 15,
+    ty: -(30 + (i % 4) * 15),
+  }));
+  return (
+    <div className="gold-dust">
+      {particles.map((p, i) => (
+        <span key={i} className="gd" style={{
+          left: p.left + '%', top: p.top + '%',
+          width: p.size + 'px', height: p.size + 'px',
+          '--o': p.opacity, '--d': p.duration + 's',
+          animationDelay: p.delay + 's',
+          '--tx': p.tx + 'px', '--ty': p.ty + 'px',
+        }} />
+      ))}
+    </div>
+  );
+}

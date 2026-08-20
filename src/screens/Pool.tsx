@@ -161,10 +161,21 @@ export default function PoolScreen({ me, onBack, onRefresh }: { me: Me; onBack: 
     st.current = { balls: P.rackPositions(), group: null };
     const c = cv.current!;
     const fit = () => {
-      const w = c.parentElement!.clientWidth || 300;
+      /* viewport fix: fit between top bar and bottom nav */
+      const maxW = 420;
+      const availH = window.innerHeight - 140;   /* topbar(~56) + bottomnav(~70) + margins */
+      let w = Math.min(c.parentElement?.clientWidth || 300, maxW);
+      /* table aspect 1:2 — ensure height fits within available space */
+      if (w * 2 > availH) w = availH / 2;
       const dpr = Math.min(2, devicePixelRatio || 1);
-      c.width = Math.round(w*dpr); c.height = Math.round(w*2*dpr);
-      c.style.height = Math.round(w*2)+'px';
+      c.width = Math.round(w * dpr);
+      c.height = Math.round(w * 2 * dpr);
+      c.style.width = Math.round(w) + 'px';
+      c.style.height = Math.round(w * 2) + 'px';
+      c.style.maxWidth = maxW + 'px';
+      c.style.margin = '0 auto';
+      c.style.display = 'block';
+      c.style.overflow = 'hidden';
       draw();
     };
     fit(); drawSpin();

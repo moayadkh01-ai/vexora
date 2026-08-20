@@ -38,7 +38,7 @@ const cfg = {
   COOKIE_SECURE: bool('COOKIE_SECURE', false),
 
   /* admin bootstrap (change immediately in production) */
-  ADMIN_EMAIL: env('ADMIN_EMAIL', 'admin@noircue.gg'),
+  ADMIN_EMAIL: env('ADMIN_EMAIL', 'admin@noircue.com'),
   ADMIN_USER: env('ADMIN_USER', 'NoirCue_Admin'),
   ADMIN_PASS: env('ADMIN_PASS', 'admin123'),
 

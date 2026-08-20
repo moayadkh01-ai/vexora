@@ -33,7 +33,7 @@ export default function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 18 }}>
-      <div style={{ width: 68, height: 68, borderRadius: 18, background: '#0c0c12', border: '2px solid #d4af37', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900, color: '#d4af37', marginBottom: 12 }}>NC</div>
+      <div className="auth-glow" style={{ width: 68, height: 68, borderRadius: 18, background: '#0c0c12', border: '2px solid #d4af37', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900, color: '#d4af37', marginBottom: 12 }}>NC</div>
       <div style={{ fontWeight: 900, letterSpacing: '.25em', fontSize: 23, color: '#d4af37' }}>NoirCue</div>
       <div style={{ fontSize: 10, color: '#9a968a', letterSpacing: '.4em', marginBottom: 20 }}>نواركيو</div>
       <div className="card glow" style={{ width: 'min(400px,100%)' }}>
@@ -41,12 +41,15 @@ export default function AuthScreen({ onAuthed }: { onAuthed: () => void }) {
           <button className={'modebtn' + (mode === 'login' ? ' on' : '')} onClick={() => setMode('login')}>تسجيل الدخول</button>
           <button className={'modebtn' + (mode === 'register' ? ' on' : '')} onClick={() => setMode('register')}>حساب جديد</button>
         </div>
-        <input style={inp} placeholder={mode === 'login' ? 'الاسم أو البريد' : 'اسم المستخدم'} value={u} onChange={ev => setU(ev.target.value)} />
+        <input style={inp} placeholder={mode === 'login' ? 'admin@noircue.com أو اسمك' : 'اسم المستخدم'} value={u} onChange={ev => setU(ev.target.value)} />
         {mode === 'register' && <input style={inp} type="email" placeholder="البريد الإلكتروني" value={e} onChange={ev => setE(ev.target.value)} />}
         <input style={inp} type="password" placeholder="كلمة المرور" value={p} onChange={ev => setP(ev.target.value)} />
         {err && <div style={{ color: '#e05c6e', fontSize: 11.5, margin: '5px 0' }}>{err}</div>}
         <button className="btn primary wfull" disabled={busy} onClick={submit} style={{ marginTop: 8 }}>{busy ? '…' : mode === 'login' ? 'دخول' : 'إنشاء حساب'}</button>
         <button className="btn ghost wfull" disabled={busy} onClick={quick} style={{ marginTop: 8 }}>⚡ حساب فوري</button>
+        <div style={{ marginTop: 10, fontSize: 10, color: '#9a968a', textAlign: 'center', lineHeight: 1.6 }}>
+          للأدارة: <b style={{ color: '#d4af37' }}>admin@noircue.com</b>
+        </div>
       </div>
     </div>
   );
