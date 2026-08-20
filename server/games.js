@@ -212,13 +212,27 @@ const TABLA = {
    server-authoritative physics (shared module with the client)
    ============================================================ */
 const P = require('../public/pool-physics');
+const SHOT_CLOCK_MS = 9000;
 const POOL = {
   newState(){
-    return { balls: P.rackPositions(), turn: 1, over: false, winner: 0, groups: { 1: null, 2: null }, last: null, lastShot: null };
+    return { balls: P.rackPositions(), turn: 1, over: false, winner: 0, groups: { 1: null, 2: null }, last: null, lastShot: null, turnStartedAt: Date.now(), foulBy: 0 };
   },
   valid(b){
     const a = Number(b && b.angle), p = Number(b && b.power);
-    return (Number.isFinite(a) && Number.isFinite(p) && p >= 1 && p <= 100) ? { angle: a, power: p } : null;
+    let s = Number(b && b.spin);
+    if (!Number.isFinite(s)) s = 0;
+    s = Math.max(-1, Math.min(1, s));
+    return (Number.isFinite(a) && Number.isFinite(p) && p >= 1 && p <= 100) ? { angle: a, power: p, spin: s } : null;
+  },
+  clockCheck(st, slot){
+    if (st.turn !== slot) return false;
+    if (st.turnStartedAt && Date.now() - st.turnStartedAt > SHOT_CLOCK_MS + 1500){
+      st.foulBy = slot;
+      st.turn = 3 - slot;
+      st.turnStartedAt = Date.now();
+      return true;                                  /* caller must persist */
+    }
+    return false;
   },
   apply(st, slot, shot){
     if (st.over) return { ok: false, reason: 'GAME_OVER' };
@@ -229,6 +243,8 @@ const POOL = {
     if (!cue) return { ok: false, reason: 'NO_CUE' };
     const speed = shot.power * 0.062;
     const rad = shot.angle * Math.PI / 180;
+    cue.spin = shot.spin || 0;
+    cue._spinUsed = false;
     cue.vx = Math.cos(rad) * speed;
     cue.vy = Math.sin(rad) * speed;
     st.lastShot = { by: slot, angle: shot.angle, power: shot.power };
@@ -265,6 +281,8 @@ const POOL = {
     const ownPot = g && pocketedBalls.some(id => (g === 'solid' ? id < 8 : id > 8));
     const keep = !cueIn && (ownPot || (!g && pocketedBalls.length > 0));
     if (!keep) st.turn = 3 - slot;
+    st.turnStartedAt = Date.now();
+    st.foulBy = cueIn ? slot : 0;
     st.last = [Math.round(cue.x), Math.round(cue.y)];
     return { ok: true };
   },
@@ -283,7 +301,7 @@ const POOL = {
     const aimX = t.x + dx / dl * 2 * P.R, aimY = t.y + dy / dl * 2 * P.R;
     let ang = Math.atan2(aimY - cue.y, aimX - cue.x) * 180 / Math.PI;
     ang += (Math.random() * 7 - 3.5);                                     // human-ish error
-    return { angle: ang, power: 40 + Math.random() * 25 };
+    return { angle: ang, power: 40 + Math.random() * 25, spin: 0 };
   }
 };
 
@@ -308,4 +326,8 @@ const engineOf = game => (GAMES[game] && GAMES[game].engine) || C4;
 const newState = game => engineOf(game).newState();
 const validMove = (game, body) => { const v = engineOf(game).valid(body); return v === null ? { err: 'BAD_MOVE', msg: 'حركة غير صالحة' } : { ok: true, move: v }; };
 
-module.exports = { GAMES, newState, validMove, engineOf, C4, RV, rvFlips, CHESS, TABLA, POOL, CH, BG, P };
+/* periodic shot-clock enforcement: pools whose turn expired without a shot → foul */
+function poolClockTick(){
+  return 0; /* driven by matchmaker sweep — see matchmaker.poolClockSweep */
+}
+module.exports = { GAMES, newState, validMove, engineOf, C4, RV, rvFlips, CHESS, TABLA, POOL, CH, BG, P, SHOT_CLOCK_MS, poolClockTick };

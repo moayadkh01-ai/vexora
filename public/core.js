@@ -181,6 +181,9 @@ function handleEvent(ev){
       }
       if (S.route === 'lobby') refreshLobbyBits();
       break;
+    case 'pool:clock':
+      if (S.roomView && S.roomView.id === d.roomId){ toast('⏱ انتهى وقت الضربة', 'فاول — انتقل الدور إليك' , 'info'); }
+      break;
     case 'gchat':                                   /* public chat rooms realtime */
       {
         const m = d.msg;

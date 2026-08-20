@@ -420,7 +420,7 @@ async function setHue(h){
 function viewFriends(){
   const f = S.friends || { friends: [], incoming: [], outgoing: [] };
   return '<div class="wrap" style="padding-top:26px">'
-    + '<div style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start">'
+    + '<div class="friends-grid">'
     + '<div><h3 class="section-title">' + icon('users', 20) + ' أصدقائي</h3>'
     + '<div class="section-sub">أضف أصدقاءك لتحديهم ومعرفة حالتهم</div>'
     + '<div class="card panel">'
@@ -586,15 +586,19 @@ function viewChat(){
     'السواليف');
 }
 async function openChatRoom(id){
-  S.chatOpenId = id;
-  S.chatUnread[id] = 0;
-  if (!S.chatMsgs[id]){
-    try {
+  try {
+    if (!S.chatRooms) await loadChatRooms();          /* guarantee list before open */
+    S.chatOpenId = id;
+    S.chatUnread[id] = 0;
+    if (!S.chatMsgs[id]){
       const j = await api('GET', '/chat/rooms/' + id + '/messages');
       S.chatMsgs[id] = j.messages || [];
-    } catch(e){ S.chatMsgs[id] = []; }
-  }
-  navigate('chat');
+    }
+    S.route = 'chat';
+    render();
+    window.scrollTo(0, 0);
+    setTimeout(() => { const i = document.getElementById('gchat-inp'); if (i) i.focus(); }, 250);
+  } catch(e){ toast('تعذر فتح الغرفة', e.message, 'err'); }
 }
 function closeChatRoom(){ S.chatOpenId = null; navigate('chat'); }
 function appendGchatMsg(m){

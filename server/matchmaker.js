@@ -69,6 +69,25 @@ function cleanStaleRoom(userId){
   }
   return activeRoomOf(userId);
 }
+/* pool shot-clock sweep: expired turn → foul + pass + broadcast */
+function poolClockSweep(){
+  const rows = db.prepare(`SELECT * FROM rooms WHERE game = 'pool8' AND status = 'playing' AND vs_ai = 0`).all();
+  for (const room of rows){
+    let st;
+    try { st = JSON.parse(room.state); } catch(e){ continue; }
+    if (st.over || !st.turnStartedAt) continue;
+    if (Date.now() - st.turnStartedAt > games.SHOT_CLOCK_MS + 2500){
+      st.foulBy = st.turn;
+      st.turn = 3 - st.turn;
+      st.turnStartedAt = Date.now();
+      stmt.roomSetState.run(JSON.stringify(st), st.turn, room.move_count, now(), room.id);
+      const upd = stmt.roomById.get(room.id);
+      broadcastRoom(upd);
+      rt.emit(3 - st.turn, 'pool:clock', { roomId: room.id, foulBy: st.foulBy });
+    }
+  }
+}
+
 function sweepStaleRooms(){
   const t = now();
   const rows = db.prepare('SELECT * FROM rooms WHERE status != ? AND last_activity < ?').all('closed', t - msCfg().STALE_OPEN_MS);
@@ -243,6 +262,15 @@ function move(user, roomId, body){
   const eng = games.engineOf(room.game);
   let state;
   try { state = JSON.parse(room.state); } catch(e){ return { err: 'STATE_ERROR' }; }
+
+  /* pool 9-second shot clock: expired → foul, persist + broadcast, reject shot */
+  if (room.game === 'pool8' && games.POOL.clockCheck(state, slot)){
+    stmt.roomSetState.run(JSON.stringify(state), state.turn, room.move_count, now(), roomId);
+    const upd0 = stmt.roomById.get(roomId);
+    broadcastRoom(upd0);
+    if (upd0.vs_ai && JSON.parse(upd0.state).turn === 2) setTimeout(() => aiMove(roomId), 650);
+    return { err: 'SHOT_CLOCK', msg: 'انتهت الـ9 ثوانٍ — فاول وتنقل الدور للخصم' };
+  }
 
   const v = games.validMove(room.game, body || {});
   if (!v.ok) return v;
@@ -434,6 +462,10 @@ function safeState(room, forUserId){
   if (room.game === 'pool8'){
     out.balls = state.balls; out.groups = state.groups; out.lastShot = state.lastShot;
     out.aimable = games.P.allStopped(state.balls);
+    out.turnStartedAt = state.turnStartedAt || 0;
+    out.shotClock = games.SHOT_CLOCK_MS;
+    out.foulBy = state.foulBy || 0;
+    out.pocketed = state.balls.filter(b => b.pocketed && b.id !== 0).map(b => b.id);
   }
   return out;
 }
@@ -497,4 +529,4 @@ const ERR_AR = {
   GAME_OVER: 'انتهت المباراة'
 };
 
-module.exports = { enqueue, cancel, tick, createRoom, joinRoom, joinByCode, practice, move, chat, chatHistory, safeState, publicRoom, activeRoomOf, leaveRoom, cleanStaleRoom, sweepStaleRooms, leaveActive, openRoomsStmt: stmt, GAMES: games.GAMES };
+module.exports = { enqueue, cancel, tick, createRoom, joinRoom, joinByCode, practice, move, chat, chatHistory, safeState, publicRoom, activeRoomOf, leaveRoom, cleanStaleRoom, sweepStaleRooms, poolClockSweep, leaveActive, openRoomsStmt: stmt, GAMES: games.GAMES };

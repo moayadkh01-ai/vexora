@@ -836,3 +836,41 @@ body{position:relative;width:100%}
   .nav-orb{width:36px;height:36px}
   .nav-lb{font-size:8px}
 }
+
+
+/* ============ Pool v2 (Gamezer-style) UI ============ */
+.pool-hud{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-bottom:8px}
+.phud-side{min-width:0;flex:1}
+.phud-side b{font-size:11.5px;color:var(--muted)}
+.pchips{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.pball{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;
+  background:radial-gradient(circle at 32% 28%, #fff6, transparent 40%), var(--pc);box-shadow:inset 0 -3px 5px rgba(0,0,0,.5),0 1px 3px rgba(0,0,0,.5)}
+.pball.stripe{background:radial-gradient(circle at 32% 28%, #fff8, transparent 40%),linear-gradient(to bottom,#eee 18%,var(--pc) 18%,var(--pc) 82%,#eee 82%)}
+.pball.eight{background:radial-gradient(circle at 32% 28%, #6668, transparent 45%),radial-gradient(circle at 50% 50%,#222,#000)}
+.pool-clockwrap{position:relative;height:16px;border-radius:99px;background:rgba(150,163,220,.14);overflow:hidden;margin:0 0 10px}
+.pool-clock{height:100%;width:100%;background:linear-gradient(90deg,#22d3ee,#8b5cf6);border-radius:99px;transition:width .12s linear}
+.pool-clock.low{background:linear-gradient(90deg,#fb7185,#f43f5e);animation:lowPulse .5s infinite alternate}
+@keyframes lowPulse{to{opacity:.55}}
+.pool-clocklbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.pool-tools{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.spin-btn{flex:1;max-width:130px;padding:8px 6px;border-radius:12px;border:1.5px solid var(--line2);background:var(--glass);color:var(--muted);font-size:11px;font-weight:800;line-height:1.5;transition:.18s}
+.spin-btn small{font-size:9px;font-weight:600;opacity:.7}
+.spin-btn.on{border-color:var(--cyan);color:var(--cyan);background:rgba(34,211,238,.1);box-shadow:0 0 14px rgba(34,211,238,.25)}
+
+/* ============ left-clip fix (friends/admin/lobby on phones) ============ */
+html, body{overflow-x:hidden;max-width:100vw;width:100%}
+#root, main{max-width:100vw;overflow-x:hidden}
+.wrap{max-width:100vw}
+.friends-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,340px);gap:20px;align-items:start}
+.friends-grid > *{min-width:0}
+@media (max-width:900px){ .friends-grid{grid-template-columns:minmax(0,1fr)} }
+.tbl-wrap{max-width:100%}
+.card{max-width:100%}
+
+@media (orientation: portrait){
+  .pool-wrap{width:100%;max-width:none}
+  .pool-wrap canvas{max-width:100%;border-radius:12px}
+  .phud-side{font-size:10.5px}
+  .pball{width:19px;height:19px;font-size:9px}
+  .spin-btn{font-size:10px;padding:7px 4px}
+}

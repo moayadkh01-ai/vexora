@@ -103,6 +103,11 @@ setInterval(() => {
   }
 }, 6000);
 
+/* pool shot-clock enforcement (every second) */
+setInterval(() => {
+  try { mm.poolClockSweep(); } catch(e){ /* non-fatal */ }
+}, 1000).unref();
+
 /* ghost rooms sweep: abandoned open/AI/both-offline rooms → close (+refund)
    fixes users getting stuck with ALREADY_IN_ROOM */
 setInterval(() => {

@@ -1,4 +1,11 @@
-(function (root, factory){
+#!/usr/bin/env python3
+# v2026.08.20.7 — Pool 8 v2 (Gamezer-style): CCD substeps, spin/draw-follow,
+# pocket suction, wooden table + 3D balls, 9s shot clock + foul, pocketed HUD,
+# portrait full-width canvas; left-clip responsive fix; rooms click hardening.
+BUILD = 'v2026.08.20.7'
+
+# ================= 1) pool-physics.js v2 =================
+P = '''(function (root, factory){
   if (typeof module === 'object' && module.exports) module.exports = factory();
   else root.PoolPhysics = factory();
 })(typeof self !== 'undefined' ? self : this, function(){
@@ -142,3 +149,6 @@
 
   return { W, H, R, PR, POCKETS, X0, X1, Y0, Y1, step, simulate, allStopped, rackPositions, nearPocket };
 });
+'''
+open('public/pool-physics.js','w',encoding='utf-8').write(P)
+print('physics v2 ok')
