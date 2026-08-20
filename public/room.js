@@ -124,6 +124,7 @@ function chBoardHTML(r){
       + '<button class="btn primary small" style="margin-top:10px" onclick="practiceAI(\'chess\')">مباراة جديدة</button>'
       + '<button class="btn ghost small" style="margin-top:8px" onclick="leaveRoomUI(' + r.id + ')">مغادرة</button></div></div>'
     : '';
+  chClockStart();
   return oppBar
     + '<div class="ch-stage">'
     + '<div class="ch-board ' + (flip ? 'flip' : '') + '" dir="ltr">' + cells + overlay + '</div>'
@@ -138,13 +139,35 @@ function chPlayerSide(p, r, isMe, myColor){
     + '<span class="chp-elo num">' + (p.rating || 1000) + (myColor ? '' : '') + '</span></div>';
 }
 function chClockHTML(r, isMine){
-  /* shot-clock style per-move timer (chess uses a soft 30s suggest timer; server has no chess clock) */
-  return '<div class="chp-clock' + (isMine && !r.over && r.turnColor === (chMyColor(r)) ? ' on' : '') + '">' + icon('clock', 14) + '</div>';
+  /* 13-second per-move visual clock (soft: server enforces fairness, UI nudges pace) */
+  const on = isMine && !r.over && r.turnColor === chMyColor(r);
+  return '<div class="chp-clock' + (on ? ' on' : '') + '" data-on="' + (on ? 1 : 0) + '">' + icon('clock', 14) + '<b id="ch-clock-num">13</b></div>';
 }
 
 /* ---------- interaction: click-to-move + drag & drop ---------- */
 function chLegalTargets(from){ const r = S.roomView; return (r.moves || []).filter(m => m.from === from); }
 function chSelect(i){ chSel = i; renderRoom(); }
+/* 13s countdown per move (visual + gentle nudge) */
+let chClockIv = 0;
+function chClockStart(){
+  clearInterval(chClockIv);
+  const tick = () => {
+    const el = document.getElementById('ch-clock-num');
+    if (!el) return;
+    const r = S.roomView;
+    if (!r || r.over || r.game !== 'chess' || r.turnColor !== chMyColor(r)){ el.textContent = '13'; return; }
+    const started = r.lastMoveAt || r.turnStartedAt || (Date.now() - 1000);
+    /* chess rooms don't carry turnStartedAt — derive from last render */
+    if (!chClockT0) chClockT0 = Date.now();
+    const left = Math.max(0, 13 - Math.floor((Date.now() - chClockT0) / 1000));
+    el.textContent = left;
+    el.parentElement.classList.toggle('low', left <= 3);
+  };
+  chClockT0 = Date.now();
+  clearInterval(chClockIv);
+  chClockIv = setInterval(tick, 500);
+}
+let chClockT0 = 0;
 async function chTryMove(from, to){
   const r = S.roomView;
   if (!r || r.over) return;
@@ -314,7 +337,8 @@ async function bgTap(pt){
 /* ============ 8-BALL POOL v2 (Gamezer-style) ============ */
 const POOL_COLORS = { 1:'#f5c518',2:'#1f6feb',3:'#e5484d',4:'#8b5cf6',5:'#f28c28',6:'#2ea043',7:'#8b1a1a',8:'#111',9:'#f5c518',10:'#1f6feb',11:'#e5484d',12:'#8b5cf6',13:'#f28c28',14:'#2ea043',15:'#8b1a1a' };
 let poolToken = 0;
-let poolSpin = 0;      /* -1 draw · 0 none · +1 follow */
+let poolSpinX = 0;     /* side spin −1..1 */
+let poolSpinY = 0;     /* top(draw) −1 .. bottom(follow) +1 */
 let poolClockRAF = 0;
 
 function poolBoardHTML(r){
@@ -322,19 +346,10 @@ function poolBoardHTML(r){
     + '<div class="pool-hud" id="pool-hud"></div>'
     + '<div class="pool-clockwrap"><div class="pool-clock" id="pool-clock"></div><span class="pool-clocklbl num" id="pool-clocklbl">9.0</span></div>'
     + '<div class="pool-wrap"><canvas id="pool-canvas"></canvas></div>'
-    + '<div class="pool-tools" id="pool-tools">'
-    + '<button class="spin-btn' + (poolSpin === -1 ? ' on' : '') + '" onclick="poolSetSpin(-1)">⬆ رجوع<br><small>(Draw)</small></button>'
-    + '<button class="spin-btn' + (poolSpin === 0 ? ' on' : '') + '" onclick="poolSetSpin(0)">● بلا<br><small>(عادي)</small></button>'
-    + '<button class="spin-btn' + (poolSpin === 1 ? ' on' : '') + '" onclick="poolSetSpin(1)">⬇ تقدم<br><small>(Follow)</small></button>'
-    + '</div>'
+    + '<div class="spinball-row"><canvas id="spinball-canvas" width="120" height="120"></canvas>'
+    + '<div class="spinball-info"><b>تحكم السبين على الكرة البيضاء</b><span class="sub2">اسحب النقطة الحمراء داخل الكرة لتحديد نقطة الضرب — أعلى = رجوع (Draw)، أسفل = تقدم (Follow)، الجوانب = دوران جانبي (Side)</span></div></div>'
     + '<div class="pool-hint sub2">اسحب من كرة الضرب لتصويب العصا · طول السحب = القوة · لديك 9 ثوانٍ لكل ضربة</div>'
     + (r.over ? endButtonsHTML(r) : '');
-}
-function poolSetSpin(v){
-  poolSpin = v;
-  document.querySelectorAll('.spin-btn').forEach(b => b.classList.remove('on'));
-  if (event && event.currentTarget) event.currentTarget.classList.add('on');
-  else { const btns = document.querySelectorAll('.spin-btn'); if (btns[v + 1]) btns[v + 1].classList.add('on'); }
 }
 
 function poolInit(){
@@ -350,10 +365,10 @@ function poolInit(){
     let w = wrap.clientWidth || cv.clientWidth || 0;
     if (w < 60) w = Math.min(360, (document.getElementById('root') || {}).clientWidth || 320);
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    cv.width = Math.max(120, Math.round(w * dpr));
-    cv.height = Math.max(70, Math.round(w * 0.54 * dpr));
+    cv.width = Math.max(140, Math.round(w * dpr));
+    cv.height = Math.max(280, Math.round(w * 2.0 * dpr));
     cv.style.width = '100%';
-    cv.style.height = Math.round(w * 0.54) + 'px';
+    cv.style.height = Math.round(w * 2.0) + 'px';
     cv.style.maxWidth = '640px';
     cv.style.margin = '0 auto';
     cv.style.display = 'block';
@@ -436,14 +451,14 @@ function poolInit(){
       diamond(ctx, cv.width - s * 1.1, cv.height * (i / 4 + .125), s * 0.5);
     }
     /* felt */
-    const felt = ctx.createRadialGradient(cv.width / 2, cv.height / 2, s * 4, cv.width / 2, cv.height / 2, cv.width * 0.62);
-    felt.addColorStop(0, '#1d6b47'); felt.addColorStop(.7, '#155939'); felt.addColorStop(1, '#0d3f28');
+    const felt = ctx.createRadialGradient(cv.width / 2, cv.height * 0.42, s * 5, cv.width / 2, cv.height / 2, cv.width * 1.25);
+    felt.addColorStop(0, '#267a52'); felt.addColorStop(.5, '#1d6b47'); felt.addColorStop(.82, '#155939'); felt.addColorStop(1, '#0d3f28');
     ctx.fillStyle = felt;
     roundRect(ctx, s * 2.1, s * 2.1, cv.width - s * 4.2, cv.height - s * 4.2, s * 1.6); ctx.fill();
     /* baulk line + D */
     ctx.strokeStyle = 'rgba(255,255,255,.22)'; ctx.lineWidth = Math.max(1, s * 0.14);
-    ctx.beginPath(); ctx.moveTo(cv.width * 0.25, s * 2.1); ctx.lineTo(cv.width * 0.25, cv.height - s * 2.1); ctx.stroke();
-    ctx.beginPath(); ctx.arc(cv.width * 0.25, cv.height / 2, cv.height * 0.18, Math.PI * 0.5, Math.PI * 1.5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(s * 2.1, cv.height * 0.72); ctx.lineTo(cv.width - s * 2.1, cv.height * 0.72); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cv.width / 2, cv.height * 0.72, cv.height * 0.09, Math.PI, 2 * Math.PI); ctx.stroke();
     /* pockets with depth */
     for (const p of P.POCKETS){
       const px = p.x * s, py = p.y * s;
@@ -578,9 +593,10 @@ function poolInit(){
       const speed = power * 0.062;
       cue.vx = Math.cos(angle * Math.PI / 180) * speed;
       cue.vy = Math.sin(angle * Math.PI / 180) * speed;
+      cue.spinX = poolSpinX; cue.spinY = poolSpinY; cue._spinUsed = false;
       requestAnimationFrame(anim);
       try {
-        const j = await api('POST', '/rooms/' + r3.id + '/move', { angle, power, spin: poolSpin });
+        const j = await api('POST', '/rooms/' + r3.id + '/move', { angle, power, spinX: poolSpinX, spinY: poolSpinY });
         if (j.state){ S.roomView = sanitizeRoom(j.state, S.roomView); }
       } catch(err){
         toast('ضربة مرفوضة', err.message, 'err');
@@ -589,6 +605,56 @@ function poolInit(){
       if (S.route === 'room' && S.roomView.game === 'pool8'){ chSel = null; bgSel = null; renderRoom(); }
     };
   } else { cv.onpointerdown = cv.onpointermove = cv.onpointerup = null; }
+  spinBallInit(token);
+}
+
+/* ---------- interactive cue-ball spin widget (red dot) ---------- */
+function spinBallInit(token){
+  const cvv = document.getElementById('spinball-canvas');
+  if (!cvv) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  cvv.width = 120 * dpr; cvv.height = 120 * dpr;
+  cvv.style.width = '120px'; cvv.style.height = '120px';
+  let drag = false;
+  function draw(){
+    const ctx = cvv.getContext('2d');
+    const s = cvv.width / 120;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, cvv.width, cvv.height);
+    const cx = 60 * s, cy = 60 * s, rad = 46 * s;
+    /* ball */
+    const g = ctx.createRadialGradient(cx - 14 * s, cy - 16 * s, 4 * s, cx, cy, rad * 1.08);
+    g.addColorStop(0, '#ffffff'); g.addColorStop(.55, '#eceff2'); g.addColorStop(1, '#b9c2c9');
+    ctx.beginPath(); ctx.arc(cx, cy, rad, 0, 7); ctx.fillStyle = g; ctx.fill();
+    ctx.lineWidth = 1.5 * s; ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.stroke();
+    /* crosshair */
+    ctx.strokeStyle = 'rgba(0,0,0,.15)'; ctx.lineWidth = 1 * s;
+    ctx.beginPath(); ctx.moveTo(cx - rad + 6 * s, cy); ctx.lineTo(cx + rad - 6 * s, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, cy - rad + 6 * s); ctx.lineTo(cx, cy + rad - 6 * s); ctx.stroke();
+    /* red dot at spin point */
+    const dx = cx + poolSpinX * (rad - 12 * s);
+    const dy = cy + poolSpinY * (rad - 12 * s);
+    ctx.beginPath(); ctx.arc(dx, dy, 8 * s, 0, 7);
+    ctx.fillStyle = '#f43f5e'; ctx.shadowColor = 'rgba(244,63,94,.8)'; ctx.shadowBlur = 10 * s;
+    ctx.fill(); ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.arc(dx - 2.5 * s, dy - 2.5 * s, 2.5 * s, 0, 7); ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.fill();
+  }
+  function setFromEvent(e){
+    const rc = cvv.getBoundingClientRect();
+    const x = ((e.clientX - rc.left) / rc.width * 120 - 60) / 34;
+    const y = ((e.clientY - rc.top) / rc.height * 120 - 60) / 34;
+    const len = Math.sqrt(x * x + y * y);
+    const k = len > 1 ? 1 / len : 1;
+    poolSpinX = Math.max(-1, Math.min(1, x * k));
+    poolSpinY = Math.max(-1, Math.min(1, y * k));
+    draw();
+  }
+  cvv.style.touchAction = 'none';
+  cvv.onpointerdown = e => { drag = true; cvv.setPointerCapture(e.pointerId); setFromEvent(e); };
+  cvv.onpointermove = e => { if (drag) setFromEvent(e); };
+  cvv.onpointerup = () => { drag = false; };
+  draw();
+  window.addEventListener('resize', () => { if (document.getElementById('spinball-canvas')) draw(); });
 }
 
 function roomHTML(){

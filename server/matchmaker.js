@@ -268,7 +268,7 @@ function move(user, roomId, body){
     stmt.roomSetState.run(JSON.stringify(state), state.turn, room.move_count, now(), roomId);
     const upd0 = stmt.roomById.get(roomId);
     broadcastRoom(upd0);
-    if (upd0.vs_ai && JSON.parse(upd0.state).turn === 2) setTimeout(() => aiMove(roomId), 650);
+    if (upd0.vs_ai && JSON.parse(upd0.state).turn === 2) setTimeout(() => aiMove(roomId), 220);
     return { err: 'SHOT_CLOCK', msg: 'انتهت الـ9 ثوانٍ — فاول وتنقل الدور للخصم' };
   }
 
@@ -285,10 +285,10 @@ function move(user, roomId, body){
     advancePasses(roomId);
     const cur = stmt.roomById.get(roomId);
     if (cur && cur.vs_ai && cur.status === 'playing'){
-      try { if (JSON.parse(cur.state).turn === 2) setTimeout(() => aiMove(roomId), 650); } catch(e){}
+      try { if (JSON.parse(cur.state).turn === 2) setTimeout(() => aiMove(roomId), 220); } catch(e){}
     }
   } else if (room.vs_ai && state.turn === 2){
-    setTimeout(() => aiMove(roomId), 650);
+    setTimeout(() => aiMove(roomId), 220);
   }
   const upd = stmt.roomById.get(roomId);
   broadcastRoom(upd);

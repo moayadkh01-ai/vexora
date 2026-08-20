@@ -3,22 +3,23 @@
   else root.PoolPhysics = factory();
 })(typeof self !== 'undefined' ? self : this, function(){
   'use strict';
-  /* VEXORA 8-Ball physics v2 — continuous collision (3 substeps/frame),
-     cue-ball spin (draw/follow), pocket suction, deterministic on server+client */
-  const W = 100, H = 50;
-  const R = 1.35;
-  const PR = 1.85;
-  const RAIL = 1.2;
+  /* VEXORA 8-Ball physics v3 — VERTICAL portrait table (50 × 100 units),
+     CCD substeps, cue spin (x=side, y=draw/follow), pocket suction,
+     deterministic: identical simulation on server and client. */
+  const W = 50, H = 100;                       /* portrait: tall table */
+  const R = 2.05;                              /* bigger balls */
+  const PR = 3.1;                              /* bigger pockets */
+  const RAIL = 1.6;
   const X0 = RAIL, X1 = W - RAIL, Y0 = RAIL, Y1 = H - RAIL;
   const POCKETS = [
-    { x: 0.8, y: 0.8 }, { x: W / 2, y: 0.3 }, { x: W - 0.8, y: 0.8 },
-    { x: 0.8, y: H - 0.8 }, { x: W / 2, y: H - 0.3 }, { x: W - 0.8, y: H - 0.8 }
+    { x: 1.1, y: 1.1 }, { x: W - 1.1, y: 1.1 }, { x: W / 2, y: 0.55 },
+    { x: 1.1, y: H - 1.1 }, { x: W - 1.1, y: H - 1.1 }, { x: W / 2, y: H - 0.55 }
   ];
-  const FRICTION = 0.9845;
-  const STOP = 0.012;
+  const FRICTION = 0.9848;
+  const STOP = 0.011;
   const WALL_DAMP = 0.86;
   const BALL_DAMP = 0.975;
-  const SUB = 3;              /* substeps per frame → no tunneling at break speed */
+  const SUB = 4;
 
   function nearPocket(x, y, mult){
     const r = PR * (mult || 1);
@@ -39,65 +40,66 @@
       const rvx = b.vx - a.vx, rvy = b.vy - a.vy;
       const rel = rvx * nx + rvy * ny;
       if (rel < 0){
-        /* spin applies on the CUE ball's first object-ball contact */
         const cue = a.id === 0 ? a : (b.id === 0 ? b : null);
-        const pvx = cue ? (a.id === 0 ? b.vx - rvx * nx : a.vx) : 0;   /* approx pre-impact cue velocity */
         const imp = -rel * BALL_DAMP;
+        /* pre-impact cue direction */
+        let preX = 0, preY = 0;
+        if (cue){
+          preX = cue === a ? a.vx + imp * nx : cue.vx - imp * nx;
+          preY = cue === a ? a.vy + imp * ny : cue.vy - imp * ny;
+        }
         a.vx -= imp * nx; a.vy -= imp * ny;
         b.vx += imp * nx; b.vy += imp * ny;
-        if (cue && cue.spin && !cue._spinUsed){
+        if (cue && !cue._spinUsed){
           cue._spinUsed = true;
-          /* pre-impact direction ≈ cue's remaining velocity before impulse */
-          const preX = cue.vx + (a === cue ? imp * nx : -imp * nx);
-          const preY = cue.vy + (a === cue ? imp * ny : -imp * ny);
-          cue.vx += cue.spin * preX * 0.5;
-          cue.vy += cue.spin * preY * 0.5;
+          /* y-spin (english): draw (y>0) pulls back, follow (y<0) pushes on */
+          const sy = (cue.spinY || 0);
+          cue.vx += -sy * preX * 0.55;
+          cue.vy += -sy * preY * 0.55;
+          /* x-spin (side): curves rebound slightly off the contact normal */
+          const sx = (cue.spinX || 0);
+          cue.vx += sx * preY * 0.35;
+          cue.vy += -sx * preX * 0.35;
         }
       }
     }
   }
 
-  function substep(balls, s){
+  function substep(balls){
     for (const b of balls){
       if (b.pocketed) continue;
-      b.x += b.vx / s;
-      b.y += b.vy / s;
-      /* pocket suction: pull nearby balls into the jaws */
-      const pull = nearPocket(b.x, b.y, 2.3);
+      b.x += b.vx / SUB;
+      b.y += b.vy / SUB;
+      const pull = nearPocket(b.x, b.y, 2.2);
       if (pull){
         const dx = pull.x - b.x, dy = pull.y - b.y;
         const d = Math.sqrt(dx * dx + dy * dy) || 1;
-        b.vx += (dx / d) * 0.09;
-        b.vy += (dy / d) * 0.09;
+        b.vx += (dx / d) * 0.11;
+        b.vy += (dy / d) * 0.11;
       }
     }
-    /* cushions (skip at pocket mouths) */
     for (const b of balls){
       if (b.pocketed) continue;
-      if (!nearPocket(b.x, b.y, 1.35)){
-        if (b.x - R < X0){ b.x = X0 + R; b.vx = -b.vx * WALL_DAMP; }
-        else if (b.x + R > X1){ b.x = X1 - R; b.vx = -b.vx * WALL_DAMP; }
-        if (b.y - R < Y0){ b.y = Y0 + R; b.vy = -b.vy * WALL_DAMP; }
-        else if (b.y + R > Y1){ b.y = Y1 - R; b.vy = -b.vy * WALL_DAMP; }
+      if (!nearPocket(b.x, b.y, 1.4)){
+        if (b.x - R < X0){ b.x = X0 + R; b.vx = -b.vx * WALL_DAMP; b.vy += (b.spinX || 0) * b.vx * 0.12; }
+        else if (b.x + R > X1){ b.x = X1 - R; b.vx = -b.vx * WALL_DAMP; b.vy -= (b.spinX || 0) * b.vx * 0.12; }
+        if (b.y - R < Y0){ b.y = Y0 + R; b.vy = -b.vy * WALL_DAMP; b.vx += (b.spinX || 0) * b.vy * 0.12; }
+        else if (b.y + R > Y1){ b.y = Y1 - R; b.vy = -b.vy * WALL_DAMP; b.vx -= (b.spinX || 0) * b.vy * 0.12; }
       } else {
         if (b.x < R) b.x = R; if (b.x > W - R) b.x = W - R;
         if (b.y < R) b.y = R; if (b.y > H - R) b.y = H - R;
       }
     }
-    /* pairwise collisions */
     for (let i = 0; i < balls.length; i++){
-      const a = balls[i];
-      if (a.pocketed) continue;
+      if (balls[i].pocketed) continue;
       for (let j = i + 1; j < balls.length; j++){
-        const c = balls[j];
-        if (c.pocketed) continue;
-        collidePair(a, c);
+        if (balls[j].pocketed) continue;
+        collidePair(balls[i], balls[j]);
       }
     }
-    /* capture */
     for (const b of balls){
       if (b.pocketed) continue;
-      if (nearPocket(b.x, b.y, 1)){ b.pocketed = true; b.vx = 0; b.vy = 0; b.x = -50; b.y = -50; }
+      if (nearPocket(b.x, b.y, 1)){ b.pocketed = true; b.vx = 0; b.vy = 0; b.x = -60; b.y = -60; }
     }
   }
 
@@ -107,7 +109,7 @@
       b.vx *= FRICTION; b.vy *= FRICTION;
       if (Math.abs(b.vx) < STOP && Math.abs(b.vy) < STOP){ b.vx = 0; b.vy = 0; }
     }
-    for (let s = 0; s < SUB; s++) substep(balls, SUB);
+    for (let s = 0; s < SUB; s++) substep(balls);
   }
 
   function allStopped(balls){
@@ -116,25 +118,29 @@
 
   function simulate(balls, maxSteps){
     let n = 0;
-    while (!allStopped(balls) && n < (maxSteps || 1400)){ step(balls); n++; }
+    while (!allStopped(balls) && n < (maxSteps || 1600)){ step(balls); n++; }
     for (const b of balls){ b.vx = 0; b.vy = 0; b._spinUsed = false; }
     return n;
   }
 
+  /* portrait rack: cue at BOTTOM (y=75%), apex triangle at TOP (y=25%) */
   function rackPositions(){
     const balls = [];
-    balls.push({ id: 0, x: W * 0.25, y: H / 2, vx: 0, vy: 0, pocketed: false, spin: 0, _spinUsed: false });
-    const apex = { x: W * 0.68, y: H / 2 };
+    balls.push({ id: 0, x: W / 2, y: H * 0.75, vx: 0, vy: 0, pocketed: false, spinX: 0, spinY: 0, _spinUsed: false });
+    const apex = { x: W / 2, y: H * 0.25 };
     const order = [1, 9, 2, 10, 8, 3, 11, 4, 12, 5, 13, 6, 14, 7, 15];
     let k = 0;
     for (let row = 0; row < 5; row++){
       for (let i = 0; i <= row; i++){
         balls.push({
           id: order[k++],
-          x: apex.x + row * (2 * R + 0.06) * 0.87,
-          y: apex.y - row * R + i * (2 * R + 0.06),
-          vx: 0, vy: 0, pocketed: false, spin: 0, _spinUsed: false
+          x: apex.x - row * (2 * R + 0.07) * 0.87,
+          y: apex.y + row * (2 * R + 0.07) * (0.5 + 0.87 * 0.5) * 0.9 + i * 0,
+          vx: 0, vy: 0, pocketed: false, spinX: 0, spinY: 0, _spinUsed: false
         });
+        /* triangle points downward: each row adds one ball horizontally staggered */
+        balls[balls.length - 1].x = apex.x - row * (R + 0.035) + i * (2 * R + 0.07);
+        balls[balls.length - 1].y = apex.y + row * (2 * R + 0.07) * 0.87;
       }
     }
     return balls;

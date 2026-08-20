@@ -219,10 +219,13 @@ const POOL = {
   },
   valid(b){
     const a = Number(b && b.angle), p = Number(b && b.power);
-    let s = Number(b && b.spin);
-    if (!Number.isFinite(s)) s = 0;
-    s = Math.max(-1, Math.min(1, s));
-    return (Number.isFinite(a) && Number.isFinite(p) && p >= 1 && p <= 100) ? { angle: a, power: p, spin: s } : null;
+    let sx = Number(b && (b.spinX !== undefined ? b.spinX : b.spin));
+    let sy = Number(b && (b.spinY !== undefined ? b.spinY : 0));
+    if (!Number.isFinite(sx)) sx = 0;
+    if (!Number.isFinite(sy)) sy = 0;
+    sx = Math.max(-1, Math.min(1, sx));
+    sy = Math.max(-1, Math.min(1, sy));
+    return (Number.isFinite(a) && Number.isFinite(p) && p >= 1 && p <= 100) ? { angle: a, power: p, spin: sy || sx * 0, spinX: sx, spinY: sy } : null;
   },
   clockCheck(st, slot){
     if (st.turn !== slot) return false;
@@ -243,7 +246,9 @@ const POOL = {
     if (!cue) return { ok: false, reason: 'NO_CUE' };
     const speed = shot.power * 0.062;
     const rad = shot.angle * Math.PI / 180;
-    cue.spin = shot.spin || 0;
+    cue.spinX = shot.spinX || 0;
+    cue.spinY = shot.spinY || 0;
+    cue.spin = shot.spinY || 0;
     cue._spinUsed = false;
     cue.vx = Math.cos(rad) * speed;
     cue.vy = Math.sin(rad) * speed;
@@ -301,7 +306,7 @@ const POOL = {
     const aimX = t.x + dx / dl * 2 * P.R, aimY = t.y + dy / dl * 2 * P.R;
     let ang = Math.atan2(aimY - cue.y, aimX - cue.x) * 180 / Math.PI;
     ang += (Math.random() * 7 - 3.5);                                     // human-ish error
-    return { angle: ang, power: 40 + Math.random() * 25, spin: 0 };
+    return { angle: ang, power: 42 + Math.random() * 26, spin: 0, spinX: 0, spinY: 0 };
   }
 };
 

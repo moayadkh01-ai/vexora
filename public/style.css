@@ -919,3 +919,18 @@ html, body{overflow-x:hidden;max-width:100vw;width:100%}
   .cap-pc{font-size:14px}
   .ch-board{width:min(58vh,72vw)}
 }
+
+
+/* ============ v2026.08.20.9 — vertical pool + spin widget + 13s clock ============ */
+.spinball-row{display:flex;align-items:center;gap:14px;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--surface);margin-top:10px}
+.spinball-row canvas{flex-shrink:0;touch-action:none;cursor:crosshair}
+.spinball-info{min-width:0}
+.spinball-info b{font-size:13.5px;display:block;margin-bottom:4px}
+.spinball-info .sub2{font-size:11.5px;line-height:1.7;display:block}
+.chp-clock{gap:3px;font-size:11px;font-weight:900}
+.chp-clock.low{color:#fda4af;border-color:rgba(251,113,133,.6);animation:clockPulse .5s infinite alternate}
+.pool-wrap canvas{aspect-ratio:1/2;max-height:78vh;width:auto;max-width:100%;margin:0 auto}
+@media (orientation: portrait){
+  .pool-wrap canvas{width:100%;max-height:none}
+  .spinball-row{flex-direction:column;text-align:center}
+}
