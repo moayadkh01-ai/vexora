@@ -76,12 +76,15 @@ function scard(ic, bg, col, val, lbl){
 }
 function gameArtSVG(id){
   if (id === 'reversi') return '<svg width="86" height="86" viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" rx="7" fill="none" stroke="#34d399" stroke-width="2.5" opacity=".5"/><circle cx="18" cy="18" r="5.5" fill="#0b0e1c" stroke="#e2e8f0" stroke-width="1.5"/><circle cx="30" cy="30" r="5.5" fill="#f8fafc"/><circle cx="30" cy="18" r="5.5" fill="#f8fafc"/><circle cx="18" cy="30" r="5.5" fill="#0b0e1c" stroke="#e2e8f0" stroke-width="1.5"/><circle cx="24" cy="8.5" r="0" /><circle cx="10" cy="24" r="5.5" fill="none" stroke="#22d3ee" stroke-width="1.6" stroke-dasharray="3 3"/></svg>';
+  if (id === 'chess') return '<svg width="86" height="86" viewBox="0 0 48 48"><path d="M14 8c0-2 5-2 5 0 0 2-1 3-1 5l4 3c3-5 5-6 5-10l3 2c0 3-2 5-4 7l6 4-2 5-4-2-1 8h-6l-1-8-4 2-2-5 6-4-4-3c0 0-1 5-3 5-2 0-2-3-2-5 0-2 1-4 1-4z" fill="#f4f6f8"/></svg>';
+  if (id === 'backgammon') return '<svg width="86" height="86" viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" rx="5" fill="none" stroke="#c8a06a" stroke-width="2"/><path d="M10 10l4 7h-8zM20 10l4 7h-8zM38 10l-4 7h8zM10 38l4-7h-8zM30 38l4-7h-8z" fill="#c8a06a" opacity=".7"/><circle cx="32" cy="16" r="4" fill="#f4f6f8"/><circle cx="16" cy="32" r="4" fill="#22d3ee"/><rect x="20" y="20" width="8" height="8" rx="2" fill="none" stroke="#ffd75e" stroke-width="1.6"/><text x="24" y="26.5" font-size="6" fill="#ffd75e" text-anchor="middle" font-family="Arial">۵</text></svg>';
+  if (id === 'pool8') return '<svg width="86" height="86" viewBox="0 0 48 48"><rect x="4" y="12" width="40" height="24" rx="4" fill="#0d3b2a"/><circle cx="16" cy="24" r="5" fill="#f4f6f8"/><circle cx="30" cy="22" r="5" fill="#111"/><text x="30" y="24.6" font-size="6" fill="#fff" text-anchor="middle" font-family="Arial">8</text><circle cx="38" cy="28" r="5" fill="#f5c518"/><path d="M8 40 36 8" stroke="#c8a06a" stroke-width="2.4" stroke-linecap="round"/></svg>';
   return '<svg width="86" height="86" viewBox="0 0 48 48"><circle cx="15" cy="16" r="5.5" fill="#22d3ee"/><circle cx="27" cy="16" r="5.5" fill="#8b5cf6"/><circle cx="39" cy="16" r="5.5" fill="#22d3ee"/><circle cx="21" cy="28" r="5.5" fill="#22d3ee"/><circle cx="33" cy="28" r="5.5" fill="#8b5cf6"/><circle cx="27" cy="40" r="5.5" fill="#22d3ee"/></svg>';
 }
 function gameCardPlayable(g){
   const count = S.presence.counts[g.id];
   return '<div class="gcard" onclick="gameMenu(\'' + g.id + '\')">'
-    + '<div class="art" style="height:128px;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,' + (g.id === 'reversi' ? '#0d3b2e,#071a14' : '#20306b,#0b0e1c') + ')">'
+    + '<div class="art" style="height:128px;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,' + (g.id === 'reversi' ? '#0d3b2e,#071a14' : g.id === 'chess' ? '#3d4266,#14172b' : g.id === 'backgammon' ? '#4a3a2a,#1c150d' : g.id === 'pool8' ? '#0d3b2e,#071a14' : '#20306b,#0b0e1c') + ')">'
     + gameArtSVG(g.id)
     + '<span class="chip playable pl">مباشر الآن</span></div>'
     + '<div class="bd"><b>' + esc(g.name_ar) + '</b><span class="arn" style="direction:ltr">' + esc(g.name_en) + '</span>'

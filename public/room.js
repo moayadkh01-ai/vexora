@@ -20,6 +20,265 @@ function viewRoomEntry(){
 }
 
 /* ---------- room view ---------- */
+function gameBoardHTML(r){
+  if (r.game === 'chess') return chBoardHTML(r);
+  if (r.game === 'backgammon') return bgBoardHTML(r);
+  if (r.game === 'pool8') return poolBoardHTML(r);
+  if (r.game === 'reversi') return rvBoardHTML(r);
+  return c4BoardHTML(r);
+}
+
+/* ============ CHESS (شطرنج) ============ */
+const CH_PIECES = { K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟' };
+let chSel = null;
+function chMyColor(r){ return r.you === 2 ? 'b' : 'w'; }
+function chBoardHTML(r){
+  const my = chMyColor(r);
+  const flip = my === 'b';
+  const myTurn = !r.over && r.turnColor === my && r.you !== 0 && r.status === 'playing';
+  const moves = r.moves || [];
+  const targets = chSel !== null ? moves.filter(m => m.from === chSel) : [];
+  let cells = '';
+  for (let v = 0; v < 64; v++){
+    const i = flip ? 63 - v : v;
+    const row = i >> 3, col = i & 7;
+    const dark = (row + col) % 2 === 1;
+    const p = r.board ? r.board[i] : '.';
+    const isTgt = targets.some(m => m.to === i);
+    const own = p !== '.' && ((p === p.toUpperCase()) === (my === 'w'));
+    const clickable = myTurn && (isTgt || own);
+    const lastM = r.last && (r.last[0] === i || r.last[1] === i);
+    cells += '<div class="ch-sq' + (dark ? ' dk' : '')
+      + (chSel === i ? ' sel' : '') + (isTgt ? ' tgt' : '') + (lastM ? ' lastm' : '')
+      + '" ' + (clickable ? 'onclick="chTap(' + i + ')"' : '') + '>'
+      + (p !== '.' ? '<span class="pc ' + (p === p.toUpperCase() ? 'pw' : 'pb') + '">' + CH_PIECES[p] + '</span>' : '')
+      + '</div>';
+  }
+  const status = r.over
+    ? (r.winner === 0 ? 'تعادل — لا نقلات قانونية' : (r.winner === r.you ? '🏆 كش مات — فزت!' : 'كش مات — خسرت'))
+    : (myTurn ? '<b>دورك' + (r.check ? ' — كش!' : '') + '</b>' : 'دور الخصم…' + (r.check ? ' (كش)' : ''));
+  const who = 'أنت بالأبيض ♔' ; const who2 = 'أنت بالأسود ♚';
+  return '<div class="gstat">' + status + ' <span class="sub2">' + (my === 'w' ? who : who2) + ' · دخول ' + fmt(r.entry) + ' · جائزة ' + fmt(r.pot) + '</span></div>'
+    + '<div class="ch-board" dir="ltr">' + cells + '</div>'
+    + (r.over ? endButtonsHTML(r) : '');
+}
+function endButtonsHTML(r){
+  return '<div style="display:flex;gap:10px;margin-top:14px"><button class="btn ghost wfull" onclick="leaveRoomUI(' + r.id + ')">مغادرة</button>'
+    + '<button class="btn primary wfull" onclick="practiceAI(\'' + r.game + '\')">مباراة جديدة</button></div>';
+}
+async function chTap(i){
+  const r = S.roomView;
+  if (!r || r.over) return;
+  const my = chMyColor(r);
+  const moves = r.moves || [];
+  if (chSel !== null && moves.some(m => m.from === chSel && m.to === i)){
+    const from = chSel; chSel = null;
+    try {
+      const j = await api('POST', '/rooms/' + r.id + '/move', { from, to: i });
+      if (j.state){ S.roomView = Object.assign({}, S.roomView, j.state); renderRoom(); }
+    } catch(e){ toast('حركة مرفوضة', e.message, 'err'); }
+    return;
+  }
+  const p = r.board ? r.board[i] : '.';
+  const own = p !== '.' && ((p === p.toUpperCase()) === (my === 'w'));
+  chSel = own ? i : null;
+  renderRoom();
+}
+
+/* ============ BACKGAMMON (طاولة الزهر) ============ */
+let bgSel = null;
+function bgBoardHTML(r){
+  const myTurn = !r.over && r.turn === r.you && r.you !== 0 && r.status === 'playing';
+  const moves = r.moves || [];
+  const targets = bgSel !== null ? moves.filter(m => m.from === bgSel) : [];
+  const ptHTML = (pt, top) => {
+    const v = (r.pts && r.pts[pt]) || 0;
+    const count = Math.abs(v), white = v > 0;
+    const canSel = myTurn && moves.some(m => m.from === pt);
+    const isTgt = targets.some(m => m.to === pt);
+    let stack = '';
+    for (let i = 0; i < Math.min(count, 5); i++) stack += '<i class="chk' + (white ? ' cw' : ' cb') + '"></i>';
+    if (count > 5) stack += '<b class="chk-n num">' + count + '</b>';
+    return '<div class="pt' + (top ? ' top' : '') + (bgSel === pt ? ' sel' : '') + (isTgt ? ' tgt' : '') + '"'
+      + ((canSel || isTgt) ? ' onclick="bgTap(' + pt + ')"' : '') + '>'
+      + '<span class="tri"></span><span class="stack">' + stack + '</span></div>';
+  };
+  const barMe = r.you === 2 ? r.bars[1] : r.bars[0];
+  const barOpp = r.you === 2 ? r.bars[0] : r.bars[1];
+  const myBarSel = myTurn && barMe > 0 && moves.some(m => m.from === 25);
+  const diceHTML = (r.dice || []).map(d => '<span class="die num">' + d + '</span>').join(' ') || '—';
+  const offMe = r.you === 2 ? r.offs[1] : r.offs[0];
+  const status = r.over
+    ? (r.winner === r.you ? '🏆 فزت! أخرجت كل حجرك' : 'خسرت — الخصم أخرج كل أحجاره')
+    : (myTurn ? '<b>دورك</b> — اختر حجرًا ثم الوجه' : 'دور الخصم…');
+  return '<div class="gstat">' + status + '<span class="sub2">دخول ' + fmt(r.entry) + ' · جائزة ' + fmt(r.pot) + '</span></div>'
+    + '<div class="bg-top"><span>النرد: ' + diceHTML + '</span><span>أخرجتَ: <b class="num">' + offMe + '/15</b></span></div>'
+    + '<div class="bg-board" dir="ltr">'
+    + '<div class="bg-row">' + [12,11,10,9,8,7,6,5,4,3,2,1].map(p => ptHTML(p, true)).join('') + '</div>'
+    + '<div class="bg-mid">'
+    + '<div class="bg-bar' + (myBarSel ? ' sel' : '') + '"' + (myBarSel ? ' onclick="bgTap(25)"' : '') + '>'
+    + '<div class="barlab">الحاجز</div>' + (barMe || barOpp ? '<div class="barnums">فيه <b class="num">' + barMe + '</b> لك · <b class="num">' + barOpp + '</b> للخصم</div>' : '<div class="barnums sub2">اضغط للدخول من الحاجز</div>') + '</div></div>'
+    + '<div class="bg-row">' + [13,14,15,16,17,18,19,20,21,22,23,24].map(p => ptHTML(p, false)).join('') + '</div>'
+    + '</div>'
+    + '<div class="bg-note sub2">' + (r.you === 1 ? 'أنت تتحرك ⟵ نحو اليمين-أسفل (بيتك 1-6)' : 'أنت تتحرك نحو الأعلى-يسار (بيتك 19-24)') + ' · النرد يُرمى تلقائيًا</div>'
+    + (r.over ? endButtonsHTML(r) : '');
+}
+async function bgTap(pt){
+  const r = S.roomView;
+  if (!r || r.over) return;
+  const moves = r.moves || [];
+  if (bgSel !== null && moves.some(m => m.from === bgSel && m.to === pt)){
+    const from = bgSel; bgSel = null;
+    try {
+      const j = await api('POST', '/rooms/' + r.id + '/move', { from, to: pt });
+      if (j.state){ S.roomView = Object.assign({}, S.roomView, j.state); renderRoom(); }
+    } catch(e){ toast('حركة مرفوضة', e.message, 'err'); }
+    return;
+  }
+  bgSel = moves.some(m => m.from === pt) ? pt : null;
+  renderRoom();
+}
+
+/* ============ 8-BALL POOL (بلياردو ٨) ============ */
+const POOL_COLORS = { 1:'#f5c518',2:'#1f6feb',3:'#e5484d',4:'#8b5cf6',5:'#f28c28',6:'#2ea043',7:'#8b1a1a',8:'#111',9:'#f5c518',10:'#1f6feb',11:'#e5484d',12:'#8b5cf6',13:'#f28c28',14:'#2ea043',15:'#8b1a1a' };
+let poolToken = 0;
+function poolBoardHTML(r){
+  return '<div class="gstat" id="pool-status"></div><div class="pool-wrap"><canvas id="pool-canvas"></canvas></div>'
+    + '<div class="pool-hint sub2" id="pool-hint">اسحب من كرة الضرب لتصويب العصا · طول السحب = القوة</div>'
+    + (r.over ? endButtonsHTML(r) : '');
+}
+function poolInit(){
+  const r = S.roomView;
+  const cv = document.getElementById('pool-canvas');
+  if (!cv || !r || !r.balls){ return; }
+  const token = ++poolToken;
+  const P = window.PoolPhysics;
+  const wrap = cv.parentElement;
+  let aim = null;
+  function fit(){
+    const w = wrap.clientWidth;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(w * 0.52 * dpr);
+    cv.style.height = Math.round(w * 0.52) + 'px';
+  }
+  function toUnits(px, py){
+    return { x: px / cv.clientWidth * P.W, y: py / cv.clientWidth * P.W };
+  }
+  function draw(){
+    const ctx = cv.getContext('2d');
+    const s = cv.width / P.W;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    // felt + rails
+    ctx.fillStyle = '#14452f';
+    ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = '#0d3b2a';
+    ctx.fillRect(s * 1.2, s * 1.2, cv.width - 2.4 * s, cv.height - 2.4 * s);
+    // pockets
+    ctx.fillStyle = '#05070f';
+    for (const p of P.POCKETS){ ctx.beginPath(); ctx.arc(p.x * s, p.y * s, P.PR * s, 0, 7); ctx.fill(); }
+    // balls
+    for (const b of r.balls){
+      if (b.pocketed) continue;
+      const x = b.x * s, y = b.y * s, rad = P.R * s;
+      ctx.beginPath(); ctx.arc(x, y, rad, 0, 7);
+      if (b.id === 0){ ctx.fillStyle = '#f4f6f8'; ctx.fill(); }
+      else if (b.id === 8){ ctx.fillStyle = '#111'; ctx.fill(); }
+      else {
+        const col = POOL_COLORS[b.id] || '#999';
+        if (b.id > 8){   // stripe
+          ctx.fillStyle = '#f4f6f8'; ctx.fill();
+          ctx.save(); ctx.beginPath(); ctx.arc(x, y, rad, 0, 7); ctx.clip();
+          ctx.fillStyle = col; ctx.fillRect(x - rad, y - rad * 0.55, rad * 2, rad * 1.1); ctx.restore();
+        } else { ctx.fillStyle = col; ctx.fill(); }
+      }
+      ctx.lineWidth = Math.max(1, rad * 0.08); ctx.strokeStyle = 'rgba(0,0,0,.4)'; ctx.stroke();
+      if (b.id !== 0 && rad > 7){
+        ctx.fillStyle = '#fff'; ctx.font = 'bold ' + Math.round(rad * 1.1) + 'px Segoe UI';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(b.id === 8 ? '8' : (b.id > 8 ? b.id - 8 : b.id), x, y + 0.5);
+      }
+    }
+    // aim preview
+    const cue = r.balls.find(b => b.id === 0);
+    if (aim && cue && !cue.pocketed){
+      const dx = aim.x - cue.x, dy = aim.y - cue.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (len > 0.5){
+        const ux = dx / len, uy = dy / len;
+        ctx.strokeStyle = 'rgba(34,211,238,.9)';
+        ctx.lineWidth = Math.max(1.5, s * 0.12);
+        ctx.setLineDash([s * 1.2, s * 0.8]);
+        ctx.beginPath(); ctx.moveTo(cue.x * s, cue.y * s);
+        ctx.lineTo((cue.x + ux * len) * s, (cue.y + uy * len) * s);
+        ctx.stroke(); ctx.setLineDash([]);
+        // cue stick
+        ctx.strokeStyle = '#c8a06a'; ctx.lineWidth = Math.max(2, s * 0.22);
+        const back = 4 + Math.min(14, len * 0.25);
+        ctx.beginPath();
+        ctx.moveTo((cue.x - ux * back) * s, (cue.y - uy * back) * s);
+        ctx.lineTo((cue.x - ux * (back + 9)) * s, (cue.y - uy * (back + 9)) * s);
+        ctx.stroke();
+      }
+    }
+  }
+  function status(){
+    const el = document.getElementById('pool-status');
+    if (!el) return;
+    const r2 = S.roomView;
+    const myTurn = !r2.over && r2.turn === r2.you && r2.aimable && r2.you !== 0;
+    let g = '';
+    const grp = r2.groups && r2.groups[r2.you];
+    if (grp) g = ' · فئتك: ' + (grp === 'solid' ? 'ملونة (١-٧)' : 'مخططة (٩-١٥)');
+    el.innerHTML = r2.over
+      ? (r2.winner === r2.you ? '🏆 فزت!' : r2.winner === 0 ? 'تعادل' : 'خسرت')
+      : (myTurn ? '<b>دورك</b> — صوّب واضرب' + g : (r2.aimable ? 'دور الخصم…' + g : 'الكرات تتحرك…' + g));
+    el.className = 'gstat';
+  }
+  function anim(){
+    if (token !== poolToken) return;
+    const r2 = S.roomView;
+    if (r2.balls && !P.allStopped(r2.balls)){
+      P.step(r2.balls);
+      draw(); status();
+      requestAnimationFrame(anim);
+    } else { draw(); status(); }
+  }
+  fit(); draw(); status();
+  window.addEventListener('resize', () => { if (token === poolToken){ fit(); draw(); } });
+  // animate incoming motion (e.g. opponent's shot)
+  if (r.balls && !P.allStopped(r.balls)) requestAnimationFrame(anim);
+  // aiming (touch + mouse via pointer events) — no page reload on rotation, WS intact
+  const myTurnNow = () => !S.roomView.over && S.roomView.turn === S.roomView.you && S.roomView.aimable && S.roomView.you !== 0;
+  if (myTurnNow()){
+    cv.style.touchAction = 'none';
+    const pos = e => { const rc = cv.getBoundingClientRect(); return toUnits(e.clientX - rc.left, e.clientY - rc.top); };
+    cv.onpointerdown = e => { if (!myTurnNow()) return; aim = pos(e); cv.setPointerCapture(e.pointerId); draw(); };
+    cv.onpointermove = e => { if (aim){ aim = pos(e); draw(); } };
+    cv.onpointerup = async e => {
+      if (!aim) return;
+      const r3 = S.roomView;
+      const cue = r3.balls.find(b => b.id === 0);
+      const dx = aim.x - cue.x, dy = aim.y - cue.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      aim = null;
+      if (len < 1.5){ draw(); return; }
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      const power = Math.max(8, Math.min(100, len * 1.15));
+      // local preview animation with the same shared physics
+      const speed = power * 0.062;
+      cue.vx = Math.cos(angle * Math.PI / 180) * speed;
+      cue.vy = Math.sin(angle * Math.PI / 180) * speed;
+      requestAnimationFrame(anim);
+      try {
+        const j = await api('POST', '/rooms/' + r3.id + '/move', { angle, power });
+        if (j.state){ S.roomView = Object.assign({}, S.roomView, j.state); }
+      } catch(err){ toast('ضربة مرفوضة', err.message, 'err'); }
+    };
+  } else { cv.onpointerdown = cv.onpointermove = cv.onpointerup = null; }
+}
+
 function roomHTML(){
   const r = S.roomView;
   const you = r.you;
@@ -44,7 +303,7 @@ function roomHTML(){
     ? '<div style="text-align:center;padding:44px 10px"><div class="code-badge" style="font-size:26px;padding:14px 26px">' + esc(r.code) + '</div>'
       + '<div style="color:var(--muted);font-size:13px;margin-top:14px">أرسل هذا الرمز لصديقك لينضم عبر «الانضمام برمز»</div>'
       + '<button class="btn ghost" style="margin-top:16px" onclick="leaveRoomUI(' + r.id + ')">' + icon('x', 15) + ' إلغاء الغرفة (استرجاع الرسوم)</button></div>'
-    : (r.game === 'reversi' ? rvBoardHTML(r) : c4BoardHTML(r));
+    : gameBoardHTML(r);
 
   return '<div class="wrap">'
     + '<div style="display:flex;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap">'
@@ -58,7 +317,7 @@ function roomHTML(){
     + '<div><div class="card panel">'
     + vsBar(r, you)
     + '<div style="margin-top:16px" id="c4-wrap">' + boardHTML + '</div>'
-    + '<div style="margin-top:14px" id="c4-status">' + statusHTML + '</div>'
+    + '<div style="margin-top:14px" id="c4-status">' + (['chess','backgammon','pool8'].indexOf(r.game) >= 0 ? '' : statusHTML) + '</div>'
     + '</div></div>'
     + '<div class="gr-side">'
     + '<div class="card panel gr-chat" style="position:relative">'
@@ -142,8 +401,10 @@ async function sendMove(body){
 }
 function renderRoom(){
   if (S.route !== 'room' || !S.roomView) return;
+  chSel = null; bgSel = null;
   const root = $('#root');
   if (root){ root.innerHTML = headerHTML() + roomHTML() + footerHTML() + drawerHTML() + bottomNavHTML(); }
+  if (S.roomView.game === 'pool8') poolInit();
 }
 
 /* ---------- chat ---------- */

@@ -164,14 +164,138 @@ const RV = {
 };
 
 /* ============================================================
+   ENGINE: VEXORA Chess (شطرنج) — move: {from, to} (0-63)
+   p1 = white (host), p2 = black
+   ============================================================ */
+const CH = require('./games-chess');
+const CHESS = {
+  newState(){ return CH.initial(); },
+  valid(b){
+    const f = Number(b && b.from), t = Number(b && b.to);
+    return (Number.isInteger(f) && f >= 0 && f < 64 && Number.isInteger(t) && t >= 0 && t < 64) ? { from: f, to: t, promo: b.promo } : null;
+  },
+  apply(st, slot, m){
+    const res = CH.move(st, slot === 1 ? 'w' : 'b', m.from, m.to, m.promo);
+    if (!res.ok) return res;
+    Object.assign(st, res.state);
+    if (res.won){ st.winner = slot; return { ok: true, won: true }; }
+    if (res.draw){ st.winner = 0; return { ok: true, draw: true }; }
+    return { ok: true };
+  },
+  legal(st){ return CH.legal(st).concat(CH.castlingMoves(st)); },
+  ai(st){ const m = CH.bestMove(st, st.turn); return m ? { from: m.from, to: m.to } : null; }
+};
+
+/* ============================================================
+   ENGINE: VEXORA Backgammon (طاولة الزهر) — move: {from, to}
+   ============================================================ */
+const BG = require('./games-bg');
+const TABLA = {
+  newState(){ return BG.initial(); },
+  valid(b){
+    const f = Number(b && b.from), t = Number(b && b.to);
+    return (Number.isInteger(f) && f >= 0 && f <= 25 && Number.isInteger(t) && t >= 0 && t <= 25) ? { from: f, to: t } : null;
+  },
+  apply(st, slot, m){
+    const res = BG.apply(st, slot, m);
+    if (!res.ok) return res;
+    Object.assign(st, res.state);
+    if (res.won) return { ok: true, won: true };
+    return { ok: true };
+  },
+  legal(st){ return BG.legal(st); },
+  ai(st){ return BG.ai(st); }
+};
+
+/* ============================================================
+   ENGINE: VEXORA 8-Ball Pool (بلياردو ٨) — shot: {angle°, power 1-100}
+   server-authoritative physics (shared module with the client)
+   ============================================================ */
+const P = require('../public/pool-physics');
+const POOL = {
+  newState(){
+    return { balls: P.rackPositions(), turn: 1, over: false, winner: 0, groups: { 1: null, 2: null }, last: null, lastShot: null };
+  },
+  valid(b){
+    const a = Number(b && b.angle), p = Number(b && b.power);
+    return (Number.isFinite(a) && Number.isFinite(p) && p >= 1 && p <= 100) ? { angle: a, power: p } : null;
+  },
+  apply(st, slot, shot){
+    if (st.over) return { ok: false, reason: 'GAME_OVER' };
+    if (st.turn !== slot) return { ok: false, reason: 'NOT_YOUR_TURN' };
+    if (!P.allStopped(st.balls)) return { ok: false, reason: 'BALLS_MOVING' };
+    const before = new Set(st.balls.filter(x => x.pocketed).map(x => x.id));
+    const cue = st.balls.find(x => x.id === 0);
+    if (!cue) return { ok: false, reason: 'NO_CUE' };
+    const speed = shot.power * 0.062;
+    const rad = shot.angle * Math.PI / 180;
+    cue.vx = Math.cos(rad) * speed;
+    cue.vy = Math.sin(rad) * speed;
+    st.lastShot = { by: slot, angle: shot.angle, power: shot.power };
+    st.last = null;
+    P.simulate(st.balls, 1500);
+    const pocketedNow = st.balls.filter(x => x.pocketed && !before.has(x.id)).map(x => x.id);
+    const cueIn = pocketedNow.indexOf(0) >= 0;
+    const pocketedBalls = pocketedNow.filter(id => id !== 0);
+    // re-spot cue ball
+    if (cueIn){
+      cue.pocketed = false; cue.vx = 0; cue.vy = 0;
+      let x = P.W * 0.25, y = P.H / 2;
+      while (st.balls.some(b => !b.pocketed && b.id !== 0 && Math.abs(b.x - x) < 2.8 && Math.abs(b.y - y) < 2.8)) x += 3;
+      cue.x = x; cue.y = y;
+    }
+    // group assignment (first legal pocket after break)
+    const first = pocketedBalls.find(id => id !== 8);
+    if (st.groups[1] === null && first !== undefined && !cueIn){
+      const g1 = first < 8 ? 'solid' : 'stripe';
+      st.groups[1] = g1;
+      st.groups[2] = g1 === 'solid' ? 'stripe' : 'solid';
+    }
+    // 8-ball win/lose
+    if (pocketedBalls.indexOf(8) >= 0){
+      const g = st.groups[slot] || 'solid';
+      const remaining = st.balls.filter(b => b.id !== 0 && b.id !== 8 && !b.pocketed &&
+        ((g === 'solid' && b.id < 8) || (g === 'stripe' && b.id > 8))).length;
+      st.over = true;
+      st.winner = (remaining === 0 && !cueIn) ? slot : 3 - slot;
+      return st.winner === slot ? { ok: true, won: true } : { ok: true, won: true };  // game over either way
+    }
+    // continue turn?
+    const g = st.groups[slot];
+    const ownPot = g && pocketedBalls.some(id => (g === 'solid' ? id < 8 : id > 8));
+    const keep = !cueIn && (ownPot || (!g && pocketedBalls.length > 0));
+    if (!keep) st.turn = 3 - slot;
+    st.last = [Math.round(cue.x), Math.round(cue.y)];
+    return { ok: true };
+  },
+  legal(st){ return null; },
+  ai(st){
+    const mine = g => st.balls.filter(b => !b.pocketed && b.id !== 0 && (g ? (g === 'solid' ? b.id < 8 : b.id > 8) : true));
+    const g = st.groups[2];
+    let targets = mine(g && g !== undefined ? g : null);
+    const cue = st.balls.find(x => x.id === 0);
+    if (!targets.length) targets = st.balls.filter(b => !b.pocketed && b.id !== 0);
+    if (!targets.length) return null;
+    const t = targets[Math.floor(Math.random() * Math.min(3, targets.length))];
+    const pk = P.POCKETS[Math.floor(Math.random() * 6)];
+    const dx = t.x - pk.x, dy = t.y - pk.y;
+    const dl = Math.sqrt(dx * dx + dy * dy) || 1;
+    const aimX = t.x + dx / dl * 2 * P.R, aimY = t.y + dy / dl * 2 * P.R;
+    let ang = Math.atan2(aimY - cue.y, aimX - cue.x) * 180 / Math.PI;
+    ang += (Math.random() * 7 - 3.5);                                     // human-ish error
+    return { angle: ang, power: 40 + Math.random() * 25 };
+  }
+};
+
+/* ============================================================
    Catalog
    ============================================================ */
 const GAMES = {
   connect4:  { id: 'connect4',  name_ar: 'فيكسورا كونكت', name_en: 'VEXORA Connect',  entry: true,  engine: C4 },
   reversi:   { id: 'reversi',   name_ar: 'أوثيلو',        name_en: 'VEXORA Reversi',  entry: true,  engine: RV },
-  pool8:     { id: 'pool8',     name_ar: 'بلياردو ٨',     name_en: 'VEXORA 8-Ball',   entry: false, soon: true },
-  chess:     { id: 'chess',     name_ar: 'شطرنج',         name_en: 'VEXORA Chess',    entry: false, soon: true },
-  backgammon:{ id: 'backgammon',name_ar: 'طاولة',         name_en: 'VEXORA Backgammon', entry: false, soon: true },
+  pool8:     { id: 'pool8',     name_ar: 'بلياردو ٨',     name_en: 'VEXORA 8-Ball',   entry: true,  engine: POOL },
+  chess:     { id: 'chess',     name_ar: 'شطرنج',         name_en: 'VEXORA Chess',    entry: true,  engine: CHESS },
+  backgammon:{ id: 'backgammon',name_ar: 'طاولة الزهر',   name_en: 'VEXORA Backgammon', entry: true,  engine: TABLA },
   checkers:  { id: 'checkers',  name_ar: 'دامة',          name_en: 'VEXORA Checkers', entry: false, soon: true },
   durak:     { id: 'durak',     name_ar: 'دوراك',         name_en: 'VEXORA Durak',    entry: false, soon: true },
   domino:    { id: 'domino',    name_ar: 'دومينو',        name_en: 'VEXORA Domino',   entry: false, soon: true },
@@ -184,4 +308,4 @@ const engineOf = game => (GAMES[game] && GAMES[game].engine) || C4;
 const newState = game => engineOf(game).newState();
 const validMove = (game, body) => { const v = engineOf(game).valid(body); return v === null ? { err: 'BAD_MOVE', msg: 'حركة غير صالحة' } : { ok: true, move: v }; };
 
-module.exports = { GAMES, newState, validMove, engineOf, C4, RV, rvFlips };
+module.exports = { GAMES, newState, validMove, engineOf, C4, RV, rvFlips, CHESS, TABLA, POOL, CH, BG, P };

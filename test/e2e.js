@@ -359,6 +359,51 @@ async function main(){
   r = await api('POST', '/api/rooms/' + chRoom + '/leave', null, omarTok);
   T('reversi: leaving concedes + pot to winner', r.status === 200 && r.j.conceded === true);
 
+  /* ============ 7.7 NEW GAMES: chess · backgammon · pool ============ */
+  console.log('— chess (full rules)');
+  r = await api('POST', '/api/rooms', { game: 'chess' }, laylaTok);
+  T('chess room created', r.status === 200 && r.j.room.game === 'chess', r.j && r.j.err);
+  const chRoom2 = r.j.room.id;
+  r = await api('POST', '/api/rooms/' + chRoom2 + '/join', null, omarTok);
+  T('chess join', r.status === 200);
+  r = await api('POST', '/api/rooms/' + chRoom2 + '/move', { from: 56, to: 40 }, laylaTok);
+  T('chess: illegal (rook blocked) rejected', r.status === 400 && r.j.error === 'ILLEGAL_MOVE', r.j && r.j.error);
+  r = await api('POST', '/api/rooms/' + chRoom2 + '/move', { from: 12, to: 28 }, omarTok);
+  T('chess: out-of-turn rejected', r.status === 400 && r.j.error === 'NOT_YOUR_TURN');
+  // fool's mate: 1.f3 e5 2.g4 Qh4#
+  await api('POST', '/api/rooms/' + chRoom2 + '/move', { from: 53, to: 45 }, laylaTok); // f2-f3
+  await api('POST', '/api/rooms/' + chRoom2 + '/move', { from: 12, to: 28 }, omarTok);  // e7-e5
+  await api('POST', '/api/rooms/' + chRoom2 + '/move', { from: 54, to: 38 }, laylaTok); // g2-g4
+  r = await api('POST', '/api/rooms/' + chRoom2 + '/move', { from: 3, to: 39 }, omarTok); // Qd8-h4#
+  const chState = (await api('GET', '/api/rooms/' + chRoom2, null, laylaTok)).j.room;
+  T('chess: checkmate detected (black wins)', r.status === 200 && chState.over === true && chState.winner === 2, { over: chState.over, winner: chState.winner });
+
+  console.log('— backgammon (طاولة)');
+  r = await api('POST', '/api/rooms', { game: 'backgammon' }, laylaTok);
+  const bgRoom = r.j.room.id;
+  await api('POST', '/api/rooms/' + bgRoom + '/join', null, omarTok);
+  const bgState0 = (await api('GET', '/api/rooms/' + bgRoom, null, laylaTok)).j.room;
+  T('backgammon: dice auto-rolled + legal moves listed', Array.isArray(bgState0.dice) && bgState0.dice.length >= 2 && bgState0.moves.length > 0, { dice: bgState0.dice, moves: bgState0.moves.length });
+  r = await api('POST', '/api/rooms/' + bgRoom + '/move', { from: 5, to: 20 }, laylaTok);
+  T('backgammon: illegal move rejected', r.status === 400 && r.j.error === 'ILLEGAL_MOVE');
+  const mv = bgState0.moves[0];
+  r = await api('POST', '/api/rooms/' + bgRoom + '/move', mv, laylaTok);
+  T('backgammon: legal move accepted (server hints)', r.status === 200, r.j);
+  await api('POST', '/api/rooms/' + bgRoom + '/leave', null, laylaTok);
+
+  console.log('— pool8 (physics, server-authoritative)');
+  r = await api('POST', '/api/mm/practice', { game: 'pool8' }, laylaTok);
+  T('pool8 practice room created', r.status === 200 && r.j.room.game === 'pool8', r.j && r.j.err);
+  const plRoom = r.j.room.id;
+  r = await api('POST', '/api/rooms/' + plRoom + '/move', { angle: 0, power: 1000 }, laylaTok);
+  T('pool8: power out of range rejected', r.status === 400);
+  r = await api('POST', '/api/rooms/' + plRoom + '/move', { angle: 0, power: 65 }, laylaTok);
+  T('pool8: break shot accepted', r.status === 200, r.j);
+  const plState = (await api('GET', '/api/rooms/' + plRoom, null, laylaTok)).j.room;
+  T('pool8: balls scattered by physics', Array.isArray(plState.balls) && plState.balls.length === 16, plState.balls && plState.balls.length);
+  T('pool8: state exposes groups + aimable', plState.groups && plState.aimable === true);
+  await api('POST', '/api/rooms/' + plRoom + '/leave', null, laylaTok);
+
   /* ============ 8. PRACTICE VS AI ============ */
   console.log('— practice vs AI');
   r = await api('POST', '/api/mm/practice', { game: 'connect4' }, laylaTok);

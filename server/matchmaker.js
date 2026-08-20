@@ -358,15 +358,30 @@ function safeState(room, forUserId){
   try { state = JSON.parse(room.state); } catch(e){ state = games.newState(room.game); }
   const host = q.userById.get(room.host_id);
   const guest = room.guest_id ? q.userById.get(room.guest_id) : null;
-  return {
+  const out = {
     id: room.id, code: room.code, game: room.game, status: room.status, vs_ai: !!room.vs_ai,
     entry: room.entry, pot: room.pot, move_count: room.move_count,
-    board: state.b, turn: state.turn, over: state.over, winner: state.winner, winCells: state.win || [], last: state.last,
+    board: state.b || null, turn: state.turn, over: state.over, winner: state.winner, winCells: state.win || [], last: state.last,
     you: slotOf(room, forUserId),
     host: { id: host.id, username: host.username, rating: host.rating, hue: host.hue },
     guest: guest ? { id: guest.id, username: guest.username, rating: guest.rating, hue: guest.hue } : (room.vs_ai ? { id: 0, username: 'VEXORA AI', rating: 1100, hue: 200 } : null),
     created_at: room.created_at
   };
+  /* game-specific views */
+  if (room.game === 'chess'){
+    out.turnColor = state.turn;
+    out.moves = games.CHESS.legal(state);
+    out.check = games.CH.inCheck(state, state.turn);
+  }
+  if (room.game === 'backgammon'){
+    out.pts = state.pts; out.bars = [state.wBar, state.bBar]; out.offs = [state.wOff, state.bOff];
+    out.dice = state.dice; out.moves = games.TABLA.legal(state);
+  }
+  if (room.game === 'pool8'){
+    out.balls = state.balls; out.groups = state.groups; out.lastShot = state.lastShot;
+    out.aimable = games.P.allStopped(state.balls);
+  }
+  return out;
 }
 function publicRoom(room, forUserId){
   const host = q.userById.get(room.host_id);
