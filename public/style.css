@@ -770,3 +770,30 @@ main{min-width:0}
 /* dd menus fit narrow screens */
 .dd{width:min(300px,calc(100vw - 24px));max-height:70vh}
 .user-menu{width:min(230px,calc(100vw - 24px))}
+
+
+/* ============================================================
+   PORTRAIT FINAL: single-column cards, zero horizontal scroll
+   ============================================================ */
+html, body{overflow-x:clip}
+body{position:relative;width:100%}
+.gcard{max-width:100%}
+.more-note{margin-top:14px;padding:14px;border-radius:14px;border:1px dashed var(--line2);color:var(--muted);font-size:12.5px;text-align:center;line-height:1.8}
+@media (orientation: portrait){
+  .games-grid{grid-template-columns:minmax(0,1fr)!important}
+  .gcard{flex-direction:row;align-items:center}
+  .gcard .art{height:88px;width:112px;flex-shrink:0}
+  .gcard .bd{flex:1;min-width:0}
+  .gcard .play{width:auto;align-self:center}
+  .packs-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-tabs{flex-wrap:wrap}
+  .wrap{width:calc(100% - 20px)}
+}
+@media (orientation: portrait) and (max-width:380px){
+  .gcard .art{height:74px;width:94px}
+  .packs-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media (orientation: landscape) and (max-height:520px){
+  .games-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}

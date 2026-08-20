@@ -380,7 +380,7 @@ function footerHTML(){
     + '<li><a href="#/profile" onclick="navigate(\'profile\')">ملفي الشخصي</a></li></ul></div>'
     + '<div><h5>الدعم</h5><ul><li><span>مركز المساعدة — قريبًا</span></li><li><span>اللعب النظيف والأمان</span></li><li><span>شروط الاستخدام</span></li><li><span>الخصوصية</span></li></ul></div>'
     + '</div>'
-    + '<div class="ftr-bot"><p>VEXORA وعملات فيكسورا علامات تجارية لشركة VEXORA Entertainment · <span class="num">© 2026</span></p><div>العب بلا حدود</div></div>'
+    + '<div class="ftr-bot"><p>VEXORA وعملات فيكسورا علامات تجارية لشركة VEXORA Entertainment · <span class="num">© 2026</span> · <span class="num" dir="ltr">' + (window.VX_BUILD || '') + '</span></p><div>العب بلا حدود</div></div>'
     + '</div></footer>';
 }
 
