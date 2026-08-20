@@ -10,7 +10,6 @@ function viewLobby(){
   const g = S.me.user;
   const games = (S.config && S.config.games) || [];
   const playable = games.filter(x => x.playable);
-  const soon = games.filter(x => !x.playable);
   const ar = S.me.activeRoom;
   const activeBanner = ar
     ? '<div class="card activeroom-banner">'
@@ -52,12 +51,8 @@ function viewLobby(){
     + '<div class="section-sub">اضغط على لعبة للمطابقة أو إنشاء غرفة</div>'
     + '<div class="games-grid">'
     + playable.map(gameCardPlayable).join('')
-    + soon.map(x => '<div class="gcard" style="opacity:.62" onclick="toast(\'قريبًا\',\'' + esc(x.name_ar) + ' ضمن التحديثات القادمة\',\'info\')">'
-      + '<div class="art" style="display:flex;align-items:center;justify-content:center;height:128px;background:linear-gradient(160deg,#1a1f3d,#0b0e1c)">' + logoMark(64) + '</div>'
-      + '<div class="bd"><b>' + esc(x.name_ar) + '</b><span class="arn">' + esc(x.name_en) + '</span>'
-      + '<div class="onl"><i style="background:#64748b;box-shadow:none"></i>قريبًا</div>'
-      + '<button class="btn ghost small wfull play">أعلمني</button></div></div>').join('')
     + '</div>'
+    + '<div class="more-note">المزيد من الألعاب قادمة ضمن موسم فيكسورا القادم: بلياردو 9 · دامة · دوراك · دومينو · رامي · دارتس</div>'
 
     + '<div style="margin-top:34px"><h3 class="section-title">' + icon('door', 20) + ' غرف مفتوحة</h3>'
     + '<div class="section-sub">انضم لغرفة عامة أو أنشئ غرفتك وشارك الرمز</div>'
