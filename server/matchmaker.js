@@ -32,6 +32,60 @@ const stmt = {
   userUpd: db.prepare('UPDATE users SET wins = wins + ?, losses = losses + ?, xp = xp + ?, rating = ?, streak = ?, best_streak = MAX(best_streak, ?) WHERE id = ?')
 };
 
+
+/* ---------- stale-room hygiene (fix: ALREADY_IN_ROOM lock) ---------- */
+const msCfg = () => require('./config');
+function staleRoomVerdict(room, t){
+  const cfg = msCfg();
+  if (room.status === 'open' && room.last_activity < t - cfg.STALE_OPEN_MS) return 'open';
+  if (room.vs_ai && room.status === 'playing' && room.last_activity < t - cfg.STALE_AI_MS) return 'ai';
+  if (!room.vs_ai && room.status === 'playing' && room.guest_id && room.last_activity < t - cfg.STALE_BOTH_OFFLINE_MS){
+    const h = q.userById.get(room.host_id), g = q.userById.get(room.guest_id);
+    if (h && g && t - h.last_seen > cfg.STALE_BOTH_OFFLINE_MS && t - g.last_seen > cfg.STALE_BOTH_OFFLINE_MS) return 'both-offline';
+  }
+  return null;
+}
+function disposeRoom(room, mode){
+  const t = now();
+  tx(() => {
+    if (mode === 'open') walletMove(room.host_id, room.entry, 'إغلاق غرفة مهجورة — استرجاع الرسوم', 'room:' + room.id);
+    if (mode === 'both-offline'){
+      walletMove(room.host_id, room.entry, 'إغلاق مباراة متروكة — استرجاع الرسوم', 'room:' + room.id);
+      walletMove(room.guest_id, room.entry, 'إغلاق مباراة متروكة — استرجاع الرسوم', 'room:' + room.id);
+    }
+    stmt.roomClose.run(t, t, room.id);
+  })();
+  rt.emit(room.host_id, 'room:update', { room: { id: room.id, status: 'closed', over: true, winner: 0 } });
+  if (room.guest_id) rt.emit(room.guest_id, 'room:update', { room: { id: room.id, status: 'closed', over: true, winner: 0 } });
+}
+function cleanStaleRoom(userId){
+  let guard = 0;
+  while (guard++ < 5){
+    const room = activeRoomOf(userId);
+    if (!room) return null;
+    const verdict = staleRoomVerdict(room, now());
+    if (!verdict) return room;
+    disposeRoom(room, verdict);
+  }
+  return activeRoomOf(userId);
+}
+function sweepStaleRooms(){
+  const t = now();
+  const rows = db.prepare('SELECT * FROM rooms WHERE status != ? AND last_activity < ?').all('closed', t - msCfg().STALE_OPEN_MS);
+  let n = 0;
+  for (const room of rows){
+    const v = staleRoomVerdict(room, t);
+    if (v){ disposeRoom(room, v); n++; }
+  }
+  return n;
+}
+function leaveActive(user){
+  const room = activeRoomOf(user.id);
+  if (!room) return { ok: true, none: true };
+  const res = leaveRoom(user, room.id);
+  return res.err ? res : Object.assign({ ok: true }, res);
+}
+
 const roomCode = () => crypto.randomBytes(3).toString('hex').toUpperCase();
 
 /* ---------- queue ---------- */
@@ -41,7 +95,7 @@ function enqueue(user, game){
   if (g.soon) return { err: 'NOT_AVAILABLE', msg: 'هذه اللعبة قادمة قريبًا' };
   if (user.coins < cfgEntry()) return { err: 'INSUFFICIENT_FUNDS', msg: 'تحتاج عملات فيكسورا أكثر لدخول الطابور' };
   if (stmt.qGet.get(user.id)) return { err: 'ALREADY_QUEUED' };
-  if (activeRoomOf(user.id)) return { err: 'ALREADY_IN_ROOM' };
+  if (cleanStaleRoom(user.id)) return { err: 'ALREADY_IN_ROOM', msg: 'لديك غرفة أو مباراة جارية — عد إليها أو غادرها من اللوبي' };
   stmt.qIns.run(user.id, game, user.rating, now());
   rt.emit(user.id, 'queue:joined', { game });
   return { ok: true };
@@ -117,7 +171,7 @@ function makeRoom(game, host, guest){
 function createRoom(user, game, privacy){
   if (!games.GAMES[game] || games.GAMES[game].soon) return { err: 'UNKNOWN_GAME' };
   if (user.coins < cfgEntry()) return { err: 'INSUFFICIENT_FUNDS', msg: 'رصيدك لا يكفي رسوم الدخول' };
-  if (activeRoomOf(user.id)) return { err: 'ALREADY_IN_ROOM' };
+  if (cleanStaleRoom(user.id)) return { err: 'ALREADY_IN_ROOM', msg: 'لديك غرفة أو مباراة جارية — عد إليها أو غادرها من اللوبي' };
   stmt.qDel.run(user.id);
   const g = games.GAMES[game];
   const state = games.newState();
@@ -157,7 +211,7 @@ function joinByCode(user, code){
 function practice(user, game){
   if (!games.GAMES[game] || games.GAMES[game].soon) return { err: 'UNKNOWN_GAME' };
   if (user.coins < cfgEntry()) return { err: 'INSUFFICIENT_FUNDS', msg: 'رصيدك لا يكفي رسوم الدخول' };
-  if (activeRoomOf(user.id)) return { err: 'ALREADY_IN_ROOM' };
+  if (cleanStaleRoom(user.id)) return { err: 'ALREADY_IN_ROOM', msg: 'لديك غرفة أو مباراة جارية — عد إليها أو غادرها من اللوبي' };
   stmt.qDel.run(user.id);
   const state = games.newState(game);
   const t = now();
@@ -443,4 +497,4 @@ const ERR_AR = {
   GAME_OVER: 'انتهت المباراة'
 };
 
-module.exports = { enqueue, cancel, tick, createRoom, joinRoom, joinByCode, practice, move, chat, chatHistory, safeState, publicRoom, activeRoomOf, leaveRoom, openRoomsStmt: stmt, GAMES: games.GAMES };
+module.exports = { enqueue, cancel, tick, createRoom, joinRoom, joinByCode, practice, move, chat, chatHistory, safeState, publicRoom, activeRoomOf, leaveRoom, cleanStaleRoom, sweepStaleRooms, leaveActive, openRoomsStmt: stmt, GAMES: games.GAMES };

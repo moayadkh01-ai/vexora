@@ -97,6 +97,17 @@ async function api(method, path, body){
 }
 
 /* ---------- toasts / modal ---------- */
+/* ALREADY_IN_ROOM → refresh state so the lobby banner shows escape buttons */
+async function roomLockHint(err){
+  if (err && err.code === 'ALREADY_IN_ROOM'){
+    await refreshMe();
+    if (S.route !== 'lobby') navigate('lobby'); else render();
+    toast('لديك غرفة أو مباراة جارية', 'استخدم أزرار «العودة للغرفة» أو «مغادرة وإعادة تعيين» في أعلى اللوبي', 'info');
+    return true;
+  }
+  return false;
+}
+
 function toast(title, msg, type){
   type = type || 'ok';
   const ic = { ok: 'check', err: 'x', coin: 'coins', info: 'bolt' }[type] || 'check';

@@ -336,6 +336,12 @@ api.post('/rooms/:id/join', (req, res) => {
   return fail(res, statusOf(r), r.err, r.msg);
 });
 
+api.post('/rooms/leave-active', (req, res) => {
+  const r = mm.leaveActive(req.user);
+  if (r.ok) return ok(res, r);
+  return fail(res, statusOf(r), r.err, r.msg);
+});
+
 api.post('/rooms/:id/leave', (req, res) => {
   const r = mm.leaveRoom(req.user, Number(req.params.id));
   if (r.ok) return ok(res, r);

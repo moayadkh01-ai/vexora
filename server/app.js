@@ -103,16 +103,16 @@ setInterval(() => {
   }
 }, 6000);
 
-/* room cleanup: stale open rooms > 10 min → close & refund host */
+/* ghost rooms sweep: abandoned open/AI/both-offline rooms → close (+refund)
+   fixes users getting stuck with ALREADY_IN_ROOM */
 setInterval(() => {
-  const stale = db.prepare(`SELECT * FROM rooms WHERE status = 'open' AND last_activity < ?`).all(now() - 600e3);
-  for (const room of stale){
-    try {
-      mm.leaveRoom({ id: room.host_id }, room.id);
-      console.log('[rooms] stale room closed', room.id);
-    } catch(e){ /* host may be gone */ }
-  }
-}, 60e3).unref();
+  try { const n = mm.sweepStaleRooms(); if (n) console.log('[rooms] swept', n, 'stale room(s)'); } catch(e){ console.error('[rooms] sweep', e.message); }
+}, 30e3).unref();
+
+/* ghost sessions purge: expired tokens removed from the DB */
+setInterval(() => {
+  try { db.prepare('DELETE FROM sessions WHERE expires_at < ?').run(now()); } catch(e){}
+}, 10 * 60e3).unref();
 
 /* optional keep-awake self-ping (free-tier hosts) */
 if (cfg.SELF_PING_URL){

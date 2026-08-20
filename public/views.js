@@ -11,7 +11,18 @@ function viewLobby(){
   const games = (S.config && S.config.games) || [];
   const playable = games.filter(x => x.playable);
   const soon = games.filter(x => !x.playable);
+  const ar = S.me.activeRoom;
+  const activeBanner = ar
+    ? '<div class="card activeroom-banner">'
+      + '<span class="onl-dot"></span>'
+      + '<div style="flex:1;min-width:0"><b>لديك ' + (ar.status === 'playing' ? 'مباراة جارية' : 'غرفة مفتوحة') + ' — ' + gameName(ar.game) + '</b>'
+      + '<div class="sub">' + (ar.vs_ai ? 'تدريب ضد الحاسوب' : (ar.guest ? 'ضد ' + esc(ar.guest.username) : 'بانتظار خصم')) + ' · رمز <b class="num">' + esc(ar.code) + '</b></div></div>'
+      + '<button class="btn primary small" onclick="openRoom(' + ar.id + ')">العودة للغرفة</button>'
+      + '<button class="btn ghost small" onclick="leaveActiveUI()">مغادرة وإعادة تعيين</button>'
+      + '</div>'
+    : '';
   return '<div class="wrap">'
+    + activeBanner
     + '<section class="hero">'
     + '<div class="hero-l">'
     + '<div class="eyebrow">أهلاً، ' + esc(g.username) + ' · <span style="color:var(--green)"><span class="live-dot" style="display:inline-block"></span> <span class="num" id="online-now">' + fmt(S.presence.online) + '</span> لاعب متصل الآن</span></div>'
@@ -126,7 +137,7 @@ async function quickMatch(game){
   try {
     await api('POST', '/mm/queue', { game });
     matchModal(game);
-  } catch(e){ toast('تعذر الدخول للطابور', e.message, 'err'); }
+  } catch(e){ if (!await roomLockHint(e)) toast('تعذر الدخول للطابور', e.message, 'err'); }
 }
 function matchModal(game){
   openModal('<div style="text-align:center" id="mm-modal">'
@@ -146,14 +157,14 @@ async function practiceAI(game){
   try {
     const j = await api('POST', '/mm/practice', { game });
     await openRoom(j.room.id);          /* fetch canonical safeState + chat */
-  } catch(e){ toast('تعذر بدء التدريب', e.message, 'err'); }
+  } catch(e){ if (!await roomLockHint(e)) toast('تعذر بدء التدريب', e.message, 'err'); }
 }
 async function createRoomUI(game, priv){
   try {
     const j = await api('POST', '/rooms', { game, privacy: priv ? 'private' : 'public' });
     await openRoom(j.room.id);
     toast('أُنشئت الغرفة ✓', 'شارك الرمز ' + j.room.code + ' مع خصمك', 'info');
-  } catch(e){ toast('تعذر إنشاء الغرفة', e.message, 'err'); }
+  } catch(e){ if (!await roomLockHint(e)) toast('تعذر إنشاء الغرفة', e.message, 'err'); }
 }
 async function joinRoomUI(id){
   try {
@@ -507,4 +518,17 @@ async function addFriendByName(n){
     toast('أُرسل طلب الصداقة', 'إلى ' + n, 'ok');
     loadFriends();
   } catch(e){ toast('تعذر الإرسال', e.message, 'err'); }
+}
+
+
+/* stuck-room escape hatch */
+async function leaveActiveUI(){
+  try {
+    const j = await api('POST', '/rooms/leave-active');
+    toast(j.none ? 'لا توجد غرفة حالية' : 'تمت المغادرة وإعادة التعيين ✓',
+          j.none ? '' : (j.conceded ? 'احتُسبت خسارة للمباراة المتروكة' : j.refunded ? 'استُرجعت رسوم الدخول' : 'أُغلقت الغرفة'), 'ok');
+    S.roomView = null; S.roomChat = [];
+    await refreshMe();
+    navigate('lobby');
+  } catch(e){ toast('تعذرت إعادة التعيين', e.message, 'err'); }
 }

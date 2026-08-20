@@ -62,6 +62,11 @@ const cfg = {
      every 4 minutes so the instance stays warm */
   SELF_PING_URL: env('SELF_PING_URL', ''),
 
+  /* ghost rooms / sessions hygiene (ms) */
+  STALE_OPEN_MS: parseInt(env('STALE_OPEN_MS', '120000'), 10),
+  STALE_AI_MS: parseInt(env('STALE_AI_MS', '180000'), 10),
+  STALE_BOTH_OFFLINE_MS: parseInt(env('STALE_BOTH_OFFLINE_MS', '180000'), 10),
+
   /* realtime */
   RT_POLL_TIMEOUT_S: parseInt(env('RT_POLL_TIMEOUT_S', '25'), 10),
   PRESENCE_WINDOW_S: parseInt(env('PRESENCE_WINDOW_S', '45'), 10),
