@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — Game engines (server-authoritative)
+   NoirCue — Game engines (server-authoritative)
    Each engine exposes:
      newState()                    → fresh state (JSON-safe)
      valid(body)                   → normalized move | null (invalid)
@@ -12,7 +12,7 @@
 const { now } = require('./db');
 
 /* ============================================================
-   ENGINE: VEXORA Connect (four-in-a-row) — 7×6
+   ENGINE: NoirCue Connect (four-in-a-row) — 7×6
    move: integer column 0-6
    ============================================================ */
 const C4 = {
@@ -79,7 +79,7 @@ function c4Win(b, p){
 }
 
 /* ============================================================
-   ENGINE: VEXORA Reversi (أوثيلو) — 8×8
+   ENGINE: NoirCue Reversi (أوثيلو) — 8×8
    move: [row, col]  ·  p1 = black (first), p2 = white
    Auto-pass when a player has no legal moves; game ends when
    both pass consecutively or the board fills. Winner = majority.
@@ -164,7 +164,7 @@ const RV = {
 };
 
 /* ============================================================
-   ENGINE: VEXORA Chess (شطرنج) — move: {from, to} (0-63)
+   ENGINE: NoirCue Chess (شطرنج) — move: {from, to} (0-63)
    p1 = white (host), p2 = black
    ============================================================ */
 const CH = require('./games-chess');
@@ -187,7 +187,7 @@ const CHESS = {
 };
 
 /* ============================================================
-   ENGINE: VEXORA Backgammon (طاولة الزهر) — move: {from, to}
+   ENGINE: NoirCue Backgammon (طاولة الزهر) — move: {from, to}
    ============================================================ */
 const BG = require('./games-bg');
 const TABLA = {
@@ -208,7 +208,7 @@ const TABLA = {
 };
 
 /* ============================================================
-   ENGINE: VEXORA 8-Ball Pool (بلياردو ٨) — shot: {angle°, power 1-100}
+   ENGINE: NoirCue 8-Ball Pool (بلياردو ٨) — shot: {angle°, power 1-100}
    server-authoritative physics (shared module with the client)
    ============================================================ */
 const P = require('../public/pool-physics');
@@ -314,17 +314,17 @@ const POOL = {
    Catalog
    ============================================================ */
 const GAMES = {
-  connect4:  { id: 'connect4',  name_ar: 'فيكسورا كونكت', name_en: 'VEXORA Connect',  entry: true,  engine: C4 },
-  reversi:   { id: 'reversi',   name_ar: 'أوثيلو',        name_en: 'VEXORA Reversi',  entry: true,  engine: RV },
-  pool8:     { id: 'pool8',     name_ar: 'بلياردو ٨',     name_en: 'VEXORA 8-Ball',   entry: true,  engine: POOL },
-  chess:     { id: 'chess',     name_ar: 'شطرنج',         name_en: 'VEXORA Chess',    entry: true,  engine: CHESS },
-  backgammon:{ id: 'backgammon',name_ar: 'طاولة الزهر',   name_en: 'VEXORA Backgammon', entry: true,  engine: TABLA },
-  checkers:  { id: 'checkers',  name_ar: 'دامة',          name_en: 'VEXORA Checkers', entry: false, soon: true },
-  durak:     { id: 'durak',     name_ar: 'دوراك',         name_en: 'VEXORA Durak',    entry: false, soon: true },
-  domino:    { id: 'domino',    name_ar: 'دومينو',        name_en: 'VEXORA Domino',   entry: false, soon: true },
-  rummy:     { id: 'rummy',     name_ar: 'رامي',          name_en: 'VEXORA Rummy',    entry: false, soon: true },
-  darts:     { id: 'darts',     name_ar: 'دارتس',         name_en: 'VEXORA Darts',    entry: false, soon: true },
-  pool9:     { id: 'pool9',     name_ar: 'بلياردو ٩',     name_en: 'VEXORA 9-Ball',   entry: false, soon: true }
+  connect4:  { id: 'connect4',  name_ar: 'نواركيو كونكت', name_en: 'NoirCue Connect',  entry: true,  engine: C4 },
+  reversi:   { id: 'reversi',   name_ar: 'أوثيلو',        name_en: 'NoirCue Reversi',  entry: true,  engine: RV },
+  pool8:     { id: 'pool8',     name_ar: 'بلياردو ٨',     name_en: 'NoirCue 8-Ball',   entry: true,  engine: POOL },
+  chess:     { id: 'chess',     name_ar: 'شطرنج',         name_en: 'NoirCue Chess',    entry: true,  engine: CHESS },
+  backgammon:{ id: 'backgammon',name_ar: 'طاولة الزهر',   name_en: 'NoirCue Backgammon', entry: true,  engine: TABLA },
+  checkers:  { id: 'checkers',  name_ar: 'دامة',          name_en: 'NoirCue Checkers', entry: false, soon: true },
+  durak:     { id: 'durak',     name_ar: 'دوراك',         name_en: 'NoirCue Durak',    entry: false, soon: true },
+  domino:    { id: 'domino',    name_ar: 'دومينو',        name_en: 'NoirCue Domino',   entry: false, soon: true },
+  rummy:     { id: 'rummy',     name_ar: 'رامي',          name_en: 'NoirCue Rummy',    entry: false, soon: true },
+  darts:     { id: 'darts',     name_ar: 'دارتس',         name_en: 'NoirCue Darts',    entry: false, soon: true },
+  pool9:     { id: 'pool9',     name_ar: 'بلياردو ٩',     name_en: 'NoirCue 9-Ball',   entry: false, soon: true }
 };
 
 const engineOf = game => (GAMES[game] && GAMES[game].engine) || C4;

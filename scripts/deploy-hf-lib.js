@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — Hugging Face deployment (official SDK)
+   NoirCue — Hugging Face deployment (official SDK)
    Usage: HF_TOKEN=hf_xxx ADMIN_PASS=xxx node scripts/deploy-hf-lib.js
    Creates: private dataset (DB backups) + public Docker Space,
    uploads the app, sets secrets, restarts the build.
@@ -17,9 +17,9 @@ const BACKUP_MIN = process.env.HF_BACKUP_MIN || '3';
 (async () => {
   const who = await fetch('https://huggingface.co/api/whoami-v2', { headers: { Authorization: 'Bearer ' + TOKEN } }).then(r => r.json());
   const OWNER = who.name;
-  const SPACE = `${OWNER}/vexora`;
-  const DATASET = `${OWNER}/vexora-db`;
-  const PUBLIC_URL = `https://${OWNER}-vexora.hf.space`;
+  const SPACE = `${OWNER}/noircue`;
+  const DATASET = `${OWNER}/noircue-db`;
+  const PUBLIC_URL = `https://${OWNER}-noircue.hf.space`;
   console.log('▶ owner:', OWNER);
 
   /* 1) private dataset for DB backups */
@@ -33,7 +33,7 @@ const BACKUP_MIN = process.env.HF_BACKUP_MIN || '3';
   /* 3) upload the app */
   const DIR = path.join(__dirname, '..');
   const readme = `---
-title: VEXORA · فيكسورا
+title: NoirCue · نواركيو
 emoji: 🎮
 colorFrom: indigo
 colorTo: cyan
@@ -41,7 +41,7 @@ sdk: docker
 app_port: 3000
 pinned: false
 ---
-VEXORA (فيكسورا) — premium Arabic-RTL multiplayer gaming platform.
+NoirCue (نواركيو) — premium Arabic-RTL multiplayer gaming platform.
 `;
   const ops = [{ operation: 'addOrUpdate', path: 'README.md', content: new Blob([readme]) }];
   const walk = (rel) => {
@@ -61,7 +61,7 @@ VEXORA (فيكسورا) — premium Arabic-RTL multiplayer gaming platform.
   console.log('▶ uploading', ops.length, 'files…');
   const r = await commit({
     repo: { type: 'space', name: SPACE },
-    title: 'VEXORA deploy',
+    title: 'NoirCue deploy',
     credentials: { accessToken: TOKEN },
     operations: ops
   });
@@ -70,7 +70,7 @@ VEXORA (فيكسورا) — premium Arabic-RTL multiplayer gaming platform.
   /* 4) secrets */
   const secrets = {
     HF_TOKEN, HF_REPO: DATASET,
-    NODE_ENV: 'production', DB_PATH: '/app/data/vexora.db',
+    NODE_ENV: 'production', DB_PATH: '/app/data/noircue.db',
     COOKIE_SECURE: '1', ADMIN_PASS, PAYMENTS_SIMULATE: '1',
     SELF_PING_URL: PUBLIC_URL, HF_BACKUP_MIN: BACKUP_MIN
   };

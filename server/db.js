@@ -1,7 +1,7 @@
 'use strict';
 /* ============================================================
-   VEXORA — Database layer (SQLite, server-authoritative)
-   All money (VEXORA Coins) lives here, never on the client.
+   NoirCue — Database layer (SQLite, server-authoritative)
+   All money (NoirCue Coins) lives here, never on the client.
    ============================================================ */
 const fs = require('fs');
 const path = require('path');
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS items (
   name_ar TEXT NOT NULL,
   name_en TEXT NOT NULL,
   desc_ar TEXT NOT NULL DEFAULT '',
-  price_vc INTEGER NOT NULL DEFAULT 0,   -- buy with VEXORA Coins
+  price_vc INTEGER NOT NULL DEFAULT 0,   -- buy with NoirCue Coins
   price_usd_cents INTEGER NOT NULL DEFAULT 0, -- buy with cash
   coins INTEGER NOT NULL DEFAULT 0,      -- coins granted (packs)
   bonus_pct INTEGER NOT NULL DEFAULT 0,

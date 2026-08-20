@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — HF Hub persistence
+   NoirCue — HF Hub persistence
    Gives ephemeral free hosts (HF Spaces) a PERMANENT database:
    • restore()  — on boot, pull + gunzip the SQLite backup if the
                   local DB is empty (fresh container)
@@ -8,7 +8,7 @@
                   to a PRIVATE Hugging Face dataset repo (free,
                   durable storage; the Space itself can stay public)
    Node built-ins only (zlib, crypto, fetch). No new dependencies.
-   Env: HF_TOKEN (write), HF_REPO (e.g. "user/vexora-db")
+   Env: HF_TOKEN (write), HF_REPO (e.g. "user/noircue-db")
    ============================================================ */
 const zlib = require('zlib');
 const crypto = require('crypto');
@@ -42,7 +42,7 @@ async function push(cfg, db){
   if (md5 === lastHash) return false;                       // nothing changed
   const b64 = zlib.gzipSync(buf).toString('base64');
   const ndjson = [
-    JSON.stringify({ key: 'header', value: { summary: 'VEXORA DB backup ' + new Date().toISOString(), repoType: 'dataset' } }),
+    JSON.stringify({ key: 'header', value: { summary: 'NoirCue DB backup ' + new Date().toISOString(), repoType: 'dataset' } }),
     JSON.stringify({ key: 'file',   value: { path: 'backup.db.gz', content: b64, encoding: 'base64' } })
   ].join('\n');
   await call(cfg, 'POST', '/api/datasets/' + cfg.HF_REPO + '/commit/main', ndjson, { 'Content-Type': 'application/x-ndjson' });

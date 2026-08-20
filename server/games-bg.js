@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA Backgammon (طاولة الزهر) — server-authoritative
+   NoirCue Backgammon (طاولة الزهر) — server-authoritative
    points[1..24]: +n = white checkers, -n = black checkers
    White moves 24 → 1 (home 1-6), black moves 1 → 24 (home 19-24)
    Dice auto-rolled server-side at turn start; if a player has no

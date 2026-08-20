@@ -1,4 +1,4 @@
-# VEXORA — Permanent 24/7 Deployment
+# NoirCue — Permanent 24/7 Deployment
 
 The platform is **deployment-ready as-is** (Node 20 + SQLite + WebSockets).
 Nothing needs rewriting: `npm ci --omit=dev && node server/index.js` runs it
@@ -54,7 +54,7 @@ configures TLS via Caddy on your domain if you have one.
 | Data | File | Kept by |
 |---|---|---|
 | Accounts, passwords (hashed), sessions | SQLite | persistent volume / VPS disk |
-| VEXORA Coins ledger & orders | SQLite | same |
+| NoirCue Coins ledger & orders | SQLite | same |
 | Store catalog, rooms, friendships | SQLite | same |
 | Static frontend + game servers | repo files | redeployed from this repo |
 
@@ -63,9 +63,9 @@ configures TLS via Caddy on your domain if you have one.
 | Var | Value |
 |---|---|
 | `NODE_ENV` | `production` |
-| `DB_PATH` | on the persistent volume (e.g. `/data/vexora.db`) |
+| `DB_PATH` | on the persistent volume (e.g. `/data/noircue.db`) |
 | `COOKIE_SECURE` | `1` (behind HTTPS) |
-| `ADMIN_PASS` | strong password (bootstrap admin `admin@vexora.gg`) |
+| `ADMIN_PASS` | strong password (bootstrap admin `admin@noircue.gg`) |
 | `SELF_PING_URL` | the live URL — keeps free tiers awake (optional) |
 | `PAYMENTS_SIMULATE` | `0` + Stripe keys when going live on payments |
 

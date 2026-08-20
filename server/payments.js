@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — Payment integration architecture
+   NoirCue — Payment integration architecture
    ─────────────────────────────────────────────────────────────
    One settlement pipeline, two providers:
 
@@ -32,7 +32,7 @@ const orderId = () => 'ord_' + crypto.randomBytes(9).toString('hex');
 async function createOrder(user, itemId, provider){
   const item = q.itemById.get(itemId);
   if (!item || !item.active) return { status: 404, err: 'UNKNOWN_ITEM', msg: 'العنصر غير موجود' };
-  if (item.price_usd_cents <= 0) return { status: 400, err: 'NOT_CASH_ITEM', msg: 'هذا العنصر يُشترى بعملات فيكسورا' };
+  if (item.price_usd_cents <= 0) return { status: 400, err: 'NOT_CASH_ITEM', msg: 'هذا العنصر يُشترى بعملات نواركيو' };
 
   if (provider === 'stripe'){
     if (!cfg.PAYMENTS_STRIPE_READY){
@@ -66,7 +66,7 @@ async function stripeCheckoutSession(order, item){
   const body = new URLSearchParams({
     mode: 'payment',
     'line_items[0][price_data][currency]': 'usd',
-    'line_items[0][price_data][product_data][name]': 'VEXORA — ' + item.name_en,
+    'line_items[0][price_data][product_data][name]': 'NoirCue — ' + item.name_en,
     'line_items[0][price_data][unit_amount]': String(item.price_usd_cents),
     'line_items[0][quantity]': '1',
     'metadata[order_id]': order.id,
@@ -119,7 +119,7 @@ function settleOrder(orderIdRaw, providerRef){
       q.invIns.run(user.id, item.id, now());
     }
 
-    notify(user.id, 'purchase', 'تمت عملية الشراء ✓', item.name_ar + ' — شكرًا لدعمك فيكسورا.');
+    notify(user.id, 'purchase', 'تمت عملية الشراء ✓', item.name_ar + ' — شكرًا لدعمك نواركيو.');
     rt.emit(user.id, 'wallet:update', { reason: 'purchase', item: item.id });
     return { ok: true, order: q.orderGet.get(order.id) };
   });
@@ -138,7 +138,7 @@ function simulateSettle(user, orderIdRaw){
   return r;
 }
 
-/* ---------- purchases with VEXORA Coins ---------- */
+/* ---------- purchases with NoirCue Coins ---------- */
 function buyWithCoins(user, itemId){
   const item = q.itemById.get(itemId);
   if (!item || !item.active) return { status: 404, err: 'UNKNOWN_ITEM', msg: 'العنصر غير موجود' };
@@ -159,7 +159,7 @@ function buyWithCoins(user, itemId){
     if (e.message === 'INSUFFICIENT_FUNDS') return { status: 402, err: 'INSUFFICIENT_FUNDS', msg: 'رصيدك لا يكفي — اشحن محفظتك أولًا' };
     throw e;
   }
-  notify(user.id, 'purchase', 'تم الشراء بعملات فيكسورا', item.name_ar);
+  notify(user.id, 'purchase', 'تم الشراء بعملات نواركيو', item.name_ar);
   rt.emit(user.id, 'wallet:update', { reason: 'purchase', item: item.id });
   return { ok: true };
 }

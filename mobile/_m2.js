@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA Mobile Edition — offline single file
+   NoirCue Mobile Edition — offline single file
    Same brand/engines as the platform, runs entirely in the
    browser (games vs the platform's AI strength, full coins/
    store/wallet/profile). Data persists in localStorage when
@@ -142,7 +142,7 @@ function grantAch(u, id, name){
 const PACKS = [ {c:5000,b:0,p:'$4.99'},{c:11000,b:10,p:'$9.99'},{c:30000,b:20,p:'$19.99'},{c:81000,b:35,p:'$44.99'},{c:256000,b:60,p:'$99.99'} ];
 const VIPS = [ {id:'silver',n:'فضية',m:2,cost:25000},{id:'gold',n:'ذهبية',m:3,cost:60000},{id:'plat',n:'بلاتينية',m:5,cost:120000} ];
 const STICKS = [ {id:'st1',n:'عصية السديم',cost:2500},{id:'st2',n:'عصية الشفق',cost:4000},{id:'st3',n:'عصية التنين',cost:6000},{id:'st4',n:'عصية الشبح',cost:9000} ];
-const EMOJIS = [ {id:'vex',n:'وجوه فيكسورا الأساسية',cost:0,e:'🎮🔥😂😮😢👋'},{id:'em1',n:'حزمة الذهب',cost:1800,e:'👑💎🏆🥇💰⚡'},{id:'em2',n:'حزمة النيون',cost:2200,e:'😎🤖👾🚀🌟🎯'},{id:'em3',n:'حزمة الكاواي',cost:2600,e:'🥰🐱🍓🎈🎁🦄'} ];
+const EMOJIS = [ {id:'vex',n:'وجوه نواركيو الأساسية',cost:0,e:'🎮🔥😂😮😢👋'},{id:'em1',n:'حزمة الذهب',cost:1800,e:'👑💎🏆🥇💰⚡'},{id:'em2',n:'حزمة النيون',cost:2200,e:'😎🤖👾🚀🌟🎯'},{id:'em3',n:'حزمة الكاواي',cost:2600,e:'🥰🐱🍓🎈🎁🦄'} ];
 
 /* ---------- state + router ---------- */
 const S = { route: 'boot', storeTab: 'packs', game: null, gameKind: 'connect4' };
@@ -150,7 +150,7 @@ function navigate(r){ S.route = r; render(); window.scrollTo(0,0); }
 
 /* ---------- boot ---------- */
 function viewBoot(){
-  const letters = 'VEXORA'.split('').map((ch,i) => '<span style="animation-delay:'+(0.2+i*0.08)+'s" class="grad-text">'+ch+'</span>').join('');
+  const letters = 'NoirCue'.split('').map((ch,i) => '<span style="animation-delay:'+(0.2+i*0.08)+'s" class="grad-text">'+ch+'</span>').join('');
   setTimeout(() => navigate(me() ? 'lobby' : 'auth'), 1800);
   return '<div class="boot">' + mark(96) + '<div class="wm">' + letters + '</div>'
     + '<div class="tagline">نسخة الجوال · العب بلا حدود</div><div class="bbar"><i></i></div></div>';
@@ -159,7 +159,7 @@ function viewBoot(){
 /* ---------- auth ---------- */
 function viewAuth(){
   return '<div class="wrap" style="padding-top:34px">'
-    + '<div style="text-align:center;margin-bottom:22px">' + mark(64) + '<div class="wm" style="font-size:24px;margin-top:10px">VEXORA</div><div class="tagline">فيكسورا · نسخة الجوال</div></div>'
+    + '<div style="text-align:center;margin-bottom:22px">' + mark(64) + '<div class="wm" style="font-size:24px;margin-top:10px">NoirCue</div><div class="tagline">نواركيو · نسخة الجوال</div></div>'
     + '<div class="card">'
     + '<div class="eyebrow">حساب جديد</div>'
     + '<div class="field" style="margin-top:10px"><label>اسم المستخدم</label><div class="inp"><input id="rg-u" placeholder="٣-٢٠ حرفًا" maxlength="20"></div><div class="fmsg" id="e1"></div></div>'
@@ -181,7 +181,7 @@ function doRegister(){
   if (p.length < 6) return ferr('e2', 'كلمة المرور ٦ أحرف على الأقل');
   const u = mkUser(n, p);
   db.users.push(u); db.session = n; save();
-  toast('أهلاً بك في فيكسورا 🎮', '+1,000 عملة ترحيبية', 'coin');
+  toast('أهلاً بك في نواركيو 🎮', '+1,000 عملة ترحيبية', 'coin');
   navigate('lobby');
 }
 function doLogin(){
@@ -196,11 +196,11 @@ function logout(){ db.session = null; save(); navigate('auth'); }
 
 /* ---------- shell ---------- */
 function shell(body, title){
-  document.title = (title || 'فيكسورا') + ' | VEXORA';
+  document.title = (title || 'نواركيو') + ' | NoirCue';
   const u = me();
   const nav = (r, lbl) => '<a class="' + (S.route === r ? 'active' : '') + '" onclick="navigate(\'' + r + '\')">' + lbl + '</a>';
   return '<div class="appbar"><div class="wrap appbar-in">'
-    + '<a onclick="navigate(\'lobby\')" style="display:flex;align-items:center;gap:8px">' + mark(34) + '<b style="font-size:16px;letter-spacing:.16em">VEXORA</b></a>'
+    + '<a onclick="navigate(\'lobby\')" style="display:flex;align-items:center;gap:8px">' + mark(34) + '<b style="font-size:16px;letter-spacing:.16em">NoirCue</b></a>'
     + '<div style="flex:1"></div>'
     + '<span class="coinpill">' + coin(17) + '<span class="num">' + fmt(u.coins) + '</span></span>'
     + '<span class="ava" style="width:36px;height:36px;font-size:15px" onclick="navigate(\'profile\')">' + esc(u.n[0].toUpperCase()) + '</span>'
@@ -217,15 +217,15 @@ function viewLobby(){
   return shell(
     '<div class="card" style="background:linear-gradient(135deg,rgba(139,92,246,.22),rgba(34,211,238,.1))">'
     + '<div class="eyebrow">أهلاً، ' + esc(u.n) + '</div>'
-    + '<h2 class="title">حلبة فيكسورا في جيبك</h2>'
+    + '<h2 class="title">حلبة نواركيو في جيبك</h2>'
     + '<div class="sub">لعبان كاملان ضد ذكاء المنصة نفسه، مع اقتصاد عملات حقيقي على جهازك.</div>'
     + '<button class="btn primary wfull" style="margin-top:12px" onclick="startGame(\'connect4\')">⚡ مباراة كونكت سريعة</button></div>'
     + '<div class="section">'
-    + gCard('connect4', 'فيكسورا كونكت', 'أربعة تربح · دخول 100 · جائزة 150', '#20306b', '#22d3ee')
+    + gCard('connect4', 'نواركيو كونكت', 'أربعة تربح · دخول 100 · جائزة 150', '#20306b', '#22d3ee')
     + gCard('reversi', 'أوثيلو (Reversi)', 'اقلب الأقراص · دخول 100 · جائزة 150', '#0d3b2e', '#34d399')
     + '</div>'
     + '<div class="card section" style="text-align:center">'
-    + '<div style="font-size:12px;color:var(--muted);line-height:1.8">النسخة الكاملة متعددة اللاعبين (مطابقة حية + أصدقاء + متجر سيرفر) تعمل على خادم فيكسورا — الحزمة الكاملة في ملف <b>VEXORA-complete.zip</b></div></div>',
+    + '<div style="font-size:12px;color:var(--muted);line-height:1.8">النسخة الكاملة متعددة اللاعبين (مطابقة حية + أصدقاء + متجر سيرفر) تعمل على خادم نواركيو — الحزمة الكاملة في ملف <b>NoirCue-complete.zip</b></div></div>',
     'اللوبي');
 }
 function gCard(id, name, sub, bg, col){
@@ -254,7 +254,7 @@ function viewGame(){
   const u = me();
   if (!S.game) return shell(
     '<div class="card" style="text-align:center"><div style="font-size:40px;margin-bottom:8px">🎮</div><b>اختر لعبة لتبدأ</b><div class="sub" style="margin:8px 0 14px">دخول ' + ENTRY + ' عملة · الفوز +' + AI_PRIZE + ' عملة و +60 XP</div>'
-    + '<button class="btn primary wfull" onclick="startGame(\'connect4\')">⚡ فيكسورا كونكت</button>'
+    + '<button class="btn primary wfull" onclick="startGame(\'connect4\')">⚡ نواركيو كونكت</button>'
     + '<button class="btn ghost wfull" style="margin-top:9px" onclick="startGame(\'reversi\')">⚫ أوثيلو (Reversi)</button></div>', 'العب');
   return shell(gameBody(), 'العب');
 }
@@ -271,7 +271,7 @@ function gameBody(){
       ? '<b style="color:' + (g.winner === 1 ? 'var(--green)' : g.winner === 2 ? 'var(--red)' : 'var(--gold)') + '">' + (g.winner === 1 ? '🏆 فزت! +' + AI_PRIZE + ' عملة' : g.winner === 2 ? 'خسرت هذه المرة' : 'تعادل') + '</b>'
       : '<span>' + (myTurn ? '<span class="dotp d1"></span><b>دورك</b>' : '<span class="dotp d2"></span>دور الحاسوب…') + '</span>'
         + '<span class="num" style="color:var(--muted);font-size:12px">' + a + ' - ' + b + '</span>';
-    return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b>' + (S.gameKind === 'reversi' ? 'أوثيلو' : 'فيكسورا كونكت') + '</b>'
+    return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b>' + (S.gameKind === 'reversi' ? 'أوثيلو' : 'نواركيو كونكت') + '</b>'
       + '<span style="font-size:11.5px;color:var(--muted)">دخول ' + ENTRY + ' · جائزة ' + AI_PRIZE + '</span></div>'
       + '<div class="gstatus" style="margin-top:8px">' + status + '</div>' + board
       + (g.over ? endButtons() : '') + '</div>';
@@ -284,7 +284,7 @@ function gameBody(){
   const status = g.over
     ? '<b style="color:' + (g.winner === 1 ? 'var(--green)' : g.winner === 2 ? 'var(--red)' : 'var(--gold)') + '">' + (g.winner === 1 ? '🏆 فزت! +' + AI_PRIZE + ' عملة' : g.winner === 2 ? 'خسرت هذه المرة' : 'تعادل — استُرجع الدخول') + '</b>'
     : (myTurn ? '<span class="dotp d1"></span><b>دورك</b> — اختر عمودًا' : '<span class="dotp d2"></span>دور الحاسوب…');
-  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>فيكسورا كونكت</b><span style="font-size:11.5px;color:var(--muted)">دخول ' + ENTRY + ' · جائزة ' + AI_PRIZE + '</span></div>'
+  return '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><b>نواركيو كونكت</b><span style="font-size:11.5px;color:var(--muted)">دخول ' + ENTRY + ' · جائزة ' + AI_PRIZE + '</span></div>'
     + '<div class="gstatus" style="margin:8px 0">' + status + '</div>' + board + (g.over ? endButtons() : '') + '</div>';
 }
 function endButtons(){
@@ -337,7 +337,7 @@ function settle(g){
     u.w[S.gameKind][0]++; u.streak++; u.best = Math.max(u.best, u.streak);
     if (u.w[S.gameKind][0] === 1) grantAch(u, 'first', 'أول فوز');
     if (u.streak >= 3) grantAch(u, 'streak', 'ثلاثية نارية');
-    if (u.coins >= 25000) grantAch(u, 'rich', 'ثري فيكسورا');
+    if (u.coins >= 25000) grantAch(u, 'rich', 'ثري نواركيو');
     toast('فوز رائع! 🏆', '+' + AI_PRIZE + ' عملة و +60 XP', 'coin');
   } else if (g.winner === 2){
     addXp(u, 15); u.w[S.gameKind][1]++; u.streak = 0;
@@ -375,7 +375,7 @@ function viewStore(){
       : '<button class="btn ghost small" onclick="buyItem(\'' + e.id + '\',' + e.cost + ',\'emoji\',\'' + e.n + '\')">' + coin(12) + ' <span class="num">' + fmt(e.cost) + '</span></button>')
     + '</div>').join('') + '</div>';
   return shell(
-    '<h2 class="title">متجر فيكسورا</h2><div class="sub">كل المشتريات تُسجَّل في محفظتك على جهازك</div>'
+    '<h2 class="title">متجر نواركيو</h2><div class="sub">كل المشتريات تُسجَّل في محفظتك على جهازك</div>'
     + '<div class="tabs">' + t('packs', 'العملات') + t('vip', 'VIP') + t('sticks', 'العصي') + t('emoji', 'الإيموجي') + '</div>'
     + body
     + '<div class="warn-note">في نسخة الجوال، حزم العملات مجانية (وضع تجريبي) — في المنصة الكاملة تُدار العملات على الخادم مع دفع حقيقي.</div>',
@@ -411,7 +411,7 @@ function viewWallet(){
   const amt = 500 * vipMult(u);
   return shell(
     '<div class="card" style="border-color:rgba(255,201,69,.35);background:linear-gradient(135deg,rgba(255,201,69,.13),transparent)">'
-    + '<div class="eyebrow" style="color:var(--gold)">محفظة عملات فيكسورا</div>'
+    + '<div class="eyebrow" style="color:var(--gold)">محفظة عملات نواركيو</div>'
     + '<div style="font-size:34px;font-weight:900;color:var(--gold);margin:8px 0">' + coin(30) + ' <span class="num">' + fmt(u.coins) + '</span></div>'
     + '<div class="sub">محفوظة على جهازك · كل حركة مسجلة بالأسفل</div>'
     + '<div style="display:flex;gap:8px;margin-top:12px">'
@@ -438,7 +438,7 @@ function viewProfile(){
   const u = me();
   const tw = u.w.connect4[0] + u.w.reversi[0], tl = u.w.connect4[1] + u.w.reversi[1];
   const wr = tw + tl ? Math.round(tw / (tw + tl) * 100) : 0;
-  const ACH = [['first', 'أول فوز', '🏆'], ['streak', 'ثلاثية نارية', '🔥'], ['rich', 'ثري فيكسورا', '💎']];
+  const ACH = [['first', 'أول فوز', '🏆'], ['streak', 'ثلاثية نارية', '🔥'], ['rich', 'ثري نواركيو', '💎']];
   return shell(
     '<div class="card" style="display:flex;gap:14px;align-items:center">'
     + '<div class="ava lg">' + esc(u.n[0].toUpperCase()) + '</div>'

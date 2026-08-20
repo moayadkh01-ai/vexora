@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — bootstrap
+   NoirCue — bootstrap
    On hub-persistent hosts (HF Spaces) the SQLite database is
    restored from the private backup repo BEFORE anything opens it.
    ============================================================ */

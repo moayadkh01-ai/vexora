@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — application (mounted by index.js AFTER db restore)
+   NoirCue — application (mounted by index.js AFTER db restore)
    Express REST + static client + WebSocket realtime + timers
    ============================================================ */
 const express = require('express');
@@ -130,7 +130,7 @@ if (cfg.SELF_PING_URL){
 
 server.listen(cfg.PORT, cfg.HOST, () => {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('  VEXORA (فيكسورا) server is live');
+  console.log('  NoirCue (نواركيو) server is live');
   console.log('  http://' + cfg.HOST + ':' + cfg.PORT);
   console.log('  db: ' + cfg.DB_PATH);
   console.log('  payments: ' + (cfg.PAYMENTS_STRIPE_READY ? 'STRIPE ✓' : 'manual/dev (see README for Stripe setup)'));

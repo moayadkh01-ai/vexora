@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — permanent deployment verification
+   NoirCue — permanent deployment verification
    Runs the full 8-point acceptance checklist against a URL:
      1. website loads            5. login works
      2. backend/API responds     6. zero "Failed to fetch" (network errors)
@@ -33,7 +33,7 @@ async function api(method, p, body, token){
 }
 
 (async () => {
-  console.log('VEXORA permanent verification →', PUB, '\n');
+  console.log('NoirCue permanent verification →', PUB, '\n');
 
   /* 8. structural independence: must not be a tunnel/sandbox/agent host */
   if (!process.env.SKIP_HOST_CHECK){
@@ -46,7 +46,7 @@ async function api(method, p, body, token){
   /* 1. website loads */
   const page = await hit('/');
   T('1. website loads (HTTP 200)', page.status === 200, page.status);
-  T('1b. VEXORA Arabic RTL app served', page.body.includes('dir="rtl"') && page.body.includes('فيكسورا'));
+  T('1b. NoirCue Arabic RTL app served', page.body.includes('dir="rtl"') && page.body.includes('نواركيو'));
   for (const f of ['style.css', 'core.js', 'views.js', 'room.js']){
     T('1c. asset ' + f, (await hit('/' + f)).status === 200);
   }
@@ -59,7 +59,7 @@ async function api(method, p, body, token){
 
   /* 3. account creation */
   const sfx = Math.floor(Math.random() * 900000 + 100000);
-  const reg = await api('POST', '/auth/register', { username: 'Perm_' + sfx, email: 'perm' + sfx + '@vexora.gg', password: 'password123' });
+  const reg = await api('POST', '/auth/register', { username: 'Perm_' + sfx, email: 'perm' + sfx + '@noircue.gg', password: 'password123' });
   T('3. account creation works (200 + token + 1000 VC)', reg.status === 200 && !!reg.j.token && reg.j.user.username === 'Perm_' + sfx, reg.j);
 
   /* 4. username validation */

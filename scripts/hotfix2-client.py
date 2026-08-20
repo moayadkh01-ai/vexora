@@ -107,7 +107,7 @@ assert old_views in c
 c = c.replace(old_views, new_views)
 
 # titles
-c = c.replace("  admin: 'لوحة الإدارة — VEXORA'\n};", "  admin: 'لوحة الإدارة — VEXORA',\n  chat: 'غرف السواليف — فيكسورا'\n};")
+c = c.replace("  admin: 'لوحة الإدارة — NoirCue'\n};", "  admin: 'لوحة الإدارة — NoirCue',\n  chat: 'غرف السواليف — نواركيو'\n};")
 
 # header nav + drawer add chat (desktop nav)
 old_nav = "navLink('lobby', 'home', 'اللوبي') + navLink('store', 'store', 'المتجر') + navLink('wallet', 'wallet', 'المحفظة') + navLink('friends', 'users', 'الأصدقاء')"
@@ -187,7 +187,7 @@ function gchatCards(){
 function viewChat(){
   if (!S.chatOpenId){
     return shell('<h2 class="title">غرف السواليف</h2>'
-      + '<div class="section-sub" style="margin-bottom:14px">10 غرف دردشة عامة — تواصل آني مع كل لاعبي فيكسورا</div>'
+      + '<div class="section-sub" style="margin-bottom:14px">10 غرف دردشة عامة — تواصل آني مع كل لاعبي نواركيو</div>'
       + '<div class="gchat-grid" style="grid-template-columns:1fr">' + gchatCards() + '</div>', 'السواليف');
   }
   const rm = (S.chatRooms || []).find(x => x.id === S.chatOpenId) || { name: 'غرفة', emoji: '💬' };

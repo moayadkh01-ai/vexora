@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — REST API
+   NoirCue — REST API
    Every mutation is validated server-side. Arabic error messages
    for player-facing failures; English error codes for logs.
    ============================================================ */
@@ -71,7 +71,7 @@ api.use((req, res, next) => {
 /* ================= PUBLIC ================= */
 
 api.get('/config', (req, res) => ok(res, {
-  brand: { name: 'VEXORA', name_ar: 'فيكسورا', tagline: 'العب بلا حدود' },
+  brand: { name: 'NoirCue', name_ar: 'نواركيو', tagline: 'العب بلا حدود' },
   payments: { stripe: cfg.PAYMENTS_STRIPE_READY, simulate: cfg.PAYMENTS_SIMULATE },
   economy: { entry: cfg.C4_ENTRY, pot: cfg.C4_POT, aiWin: cfg.C4_AI_WIN, daily: cfg.DAILY_VC },
   games: Object.values(games.GAMES).map(g => ({ id: g.id, name_ar: g.name_ar, name_en: g.name_en, playable: !g.soon }))
@@ -105,7 +105,7 @@ api.post('/auth/register', (req, res) => {
         username, email, pass: auth.hashPassword(password), role: 'player',
         coins: 0, now: t, hue: Math.floor(Math.random() * 360)
       }).lastInsertRowid;
-      auth.walletMove(Number(id), cfg.WELCOME_VC, 'مكافأة الترحيب — أهلاً في فيكسورا', 'welcome', tx);
+      auth.walletMove(Number(id), cfg.WELCOME_VC, 'مكافأة الترحيب — أهلاً في نواركيو', 'welcome', tx);
     })();
   } catch(e){
     if (String(e.message).indexOf('UNIQUE') >= 0) return fail(res, 409, 'TAKEN', 'الاسم أو البريد محجوز');
@@ -113,7 +113,7 @@ api.post('/auth/register', (req, res) => {
   }
   const token = auth.issueToken(id, clientIp(req));
   const user = q.userById.get(id);
-  auth.notify(id, 'welcome', 'أهلاً بك في فيكسورا 🎮', 'أُضيفت ' + cfg.WELCOME_VC + ' عملة فيكسورا إلى محفظتك. استكشف اللوبي وابدأ اللعب!');
+  auth.notify(id, 'welcome', 'أهلاً بك في نواركيو 🎮', 'أُضيفت ' + cfg.WELCOME_VC + ' عملة نواركيو إلى محفظتك. استكشف اللوبي وابدأ اللعب!');
   auth.setAuthCookie(res, token);
   return ok(res, { token, user: userPublic(user, id) });
 });
@@ -127,7 +127,7 @@ api.post('/auth/login', (req, res) => {
   const user = q.userByEmail.get(idv.toLowerCase()) || q.userByName.get(idv);
   const fine = user && auth.verifyPassword(password, user.pass);
   if (!fine) return fail(res, 401, 'BAD_CREDS', 'بيانات الدخول غير صحيحة');
-  if (user.banned) return fail(res, 403, 'BANNED', 'هذا الحساب موقوف. تواصل مع دعم فيكسورا.');
+  if (user.banned) return fail(res, 403, 'BANNED', 'هذا الحساب موقوف. تواصل مع دعم نواركيو.');
   const token = auth.issueToken(user.id, clientIp(req));
   auth.setAuthCookie(res, token);
   q.touch.run(now(), user.id);
@@ -471,7 +471,7 @@ api.post('/admin/users/:id/ban', auth.requireAdmin, (req, res) => {
     auth.revokeUserSessions(id);
     mm.openRoomsStmt.qDel.run(id);
     rt.deliverOnly(id, { type: 'force:logout', data: { reason: 'banned' }, seq: 0, at: now() });
-    auth.notify(id, 'mod', 'تم إيقاف حسابك', 'لاستئناف الحساب تواصل مع دعم فيكسورا.');
+    auth.notify(id, 'mod', 'تم إيقاف حسابك', 'لاستئناف الحساب تواصل مع دعم نواركيو.');
   }
   return ok(res, { banned: on });
 });
@@ -484,7 +484,7 @@ api.post('/admin/users/:id/grant', auth.requireAdmin, (req, res) => {
   if (!target) return fail(res, 404, 'NO_USER');
   try { auth.walletMove(target.id, amount, 'تعديل إداري' + (b.reason ? ' — ' + cleanText(b.reason, 60) : ''), 'admin:' + req.user.id); }
   catch(e){ return fail(res, 402, 'INSUFFICIENT_FUNDS', 'سيؤدي ذلك إلى رصيد سالب'); }
-  auth.notify(target.id, amount > 0 ? 'grant' : 'adjust', 'حركة رصيد من الإدارة', (amount > 0 ? '+' : '') + amount + ' عملة فيكسورا');
+  auth.notify(target.id, amount > 0 ? 'grant' : 'adjust', 'حركة رصيد من الإدارة', (amount > 0 ? '+' : '') + amount + ' عملة نواركيو');
   rt.emit(target.id, 'wallet:update', { coins: q.userById.get(target.id).coins, reason: 'admin' });
   return ok(res, { coins: q.userById.get(target.id).coins });
 });
@@ -508,7 +508,7 @@ api.get('/admin/db-backup', auth.requireAdmin, (req, res) => {
     if (!fs.existsSync(cfg.DB_PATH)) return fail(res, 404, 'NO_DB', 'قاعدة البيانات غير موجودة');
     const buf = fs.readFileSync(cfg.DB_PATH);
     res.setHeader('Content-Type', 'application/octet-stream');
-    res.setHeader('Content-Disposition', 'attachment; filename="vexora-backup-' + new Date().toISOString().slice(0, 10) + '.db"');
+    res.setHeader('Content-Disposition', 'attachment; filename="noircue-backup-' + new Date().toISOString().slice(0, 10) + '.db"');
     return res.end(buf);
   } catch(e){ return fail(res, 500, 'BACKUP_ERR', e.message); }
 });

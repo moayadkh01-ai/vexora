@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — DOM integration test
+   NoirCue — DOM integration test
    Boots the real server, loads the real frontend (Arabic RTL)
    in a real DOM, and drives a full player journey end-to-end.
    ============================================================ */
@@ -12,7 +12,7 @@ const WebSocket = require('ws');
 
 const PORT = parseInt(process.env.TEST_PORT || String(3200 + Math.floor(Math.random() * 500)), 10);
 const B = 'http://127.0.0.1:' + PORT;
-const DB = '/tmp/vexora-dom-' + Date.now() + '.db';
+const DB = '/tmp/noircue-dom-' + Date.now() + '.db';
 
 let passed = 0, failed = 0;
 const fails = [];
@@ -33,7 +33,7 @@ async function apiRaw(method, p, body, token){
 }
 
 async function main(){
-  console.log('VEXORA dom-test — booting');
+  console.log('NoirCue dom-test — booting');
   fs.rmSync(DB, { force: true });
   const srv = spawn(process.execPath, [path.join(__dirname, '..', 'server', 'index.js')], {
     env: Object.assign({}, process.env, { PORT: String(PORT), DB_PATH: DB, PAYMENTS_SIMULATE: '1' }),
@@ -70,9 +70,9 @@ async function main(){
   if (!d.getElementById('rg-u')) w.setAuthTab('register');
   await waitFor(() => d.getElementById('rg-u'), 3000, 'register form');
   T('RTL document', d.documentElement.getAttribute('dir') === 'rtl' && d.documentElement.lang === 'ar');
-  T('page title carries brand', /VEXORA|فيكسورا/.test(d.title), d.title);
+  T('page title carries brand', /NoirCue|نواركيو/.test(d.title), d.title);
   T('server-config booted past connection screen', !d.getElementById('bootscr') || !d.querySelector('#bootscr .boot-status'));
-  T('arabic brand visible on auth', d.body.textContent.includes('فيكسورا'));
+  T('arabic brand visible on auth', d.body.textContent.includes('نواركيو'));
 
   d.getElementById('rg-u').value = 'DomTester_' + Math.floor(Math.random() * 9000 + 1000);
   d.getElementById('rg-e').value = 'dom' + Date.now() + '@t.gg';
@@ -137,7 +137,7 @@ async function main(){
   T('daily bonus through UI credited on server', true);
 
   console.log('— store & inventory via UI');
-  const adm = await apiRaw('POST', '/auth/login', { id: 'admin@vexora.gg', password: 'admin123' });
+  const adm = await apiRaw('POST', '/auth/login', { id: 'admin@noircue.gg', password: 'admin123' });
   const myId = w.S.me.user.id;
   await apiRaw('POST', '/admin/users/' + myId + '/grant', { coins: 5000, reason: 'dom test' }, adm.j.token);
   await w.refreshMe();
@@ -204,7 +204,7 @@ async function main(){
     beforeParse(window){
       window.fetch = (u, o) => fetch(new URL(u, B).href, o);
       window.WebSocket = WebSocket;
-      try { window.localStorage.setItem('vexora_token', w.S.token); } catch(e){}
+      try { window.localStorage.setItem('noircue_token', w.S.token); } catch(e){}
     }
   });
   const w2 = dom2.window;
@@ -220,12 +220,12 @@ async function main(){
   await waitFor(() => w.S.me === null && (w.document.getElementById('rg-u') || w.document.getElementById('lg-id')), 4000, 'back to auth');
   if (!w.document.getElementById('lg-id')) w.setAuthTab('login');
   await waitFor(() => w.document.getElementById('lg-id'), 2500, 'login form');
-  w.document.getElementById('lg-id').value = 'admin@vexora.gg';
+  w.document.getElementById('lg-id').value = 'admin@noircue.gg';
   w.document.getElementById('lg-pw').value = 'admin123';
   w.doLogin();
   await waitFor(() => w.S.me && w.S.me.user.role === 'admin', 7000, 'admin session');
   w.navigate('admin');
-  await waitFor(() => w.document.body.textContent.includes('VEXORA Control Center'), 6000, 'admin overview');
+  await waitFor(() => w.document.body.textContent.includes('NoirCue Control Center'), 6000, 'admin overview');
   await sleep(800);
   T('admin overview KPIs render from live data', w.document.querySelectorAll('.kpi').length >= 4, w.document.querySelectorAll('.kpi').length);
   w.setAdminTab('users');

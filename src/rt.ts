@@ -1,4 +1,4 @@
-/* VEXORA realtime — WebSocket with automatic long-poll fallback (same protocol as backend) */
+/* NoirCue realtime — WebSocket with automatic long-poll fallback (same protocol as backend) */
 type Handler = (ev: { type: string; data: any }) => void;
 
 export class RT {

@@ -1,5 +1,5 @@
 ════════════════════════════════════════════════════════
-  VEXORA (فيكسورا) — FULL PROJECT BACKUP
+  NoirCue (نواركيو) — FULL PROJECT BACKUP
   Includes: complete code + SQLite database (all accounts,
   coins, rooms, friendships, orders)
 ════════════════════════════════════════════════════════
@@ -10,8 +10,8 @@ RUN IT ANYWHERE (any machine with Node.js 20+):
     npm start
     →  http://localhost:3000
 
-  · Admin: admin@vexora.gg / admin123  (change in .env!)
-  · Database: data/vexora.db (all player data included)
+  · Admin: admin@noircue.gg / admin123  (change in .env!)
+  · Database: data/noircue.db (all player data included)
   · Config: copy config.example.env → .env to customize
 
 DEPLOY PERMANENTLY (24/7) — configs are included:

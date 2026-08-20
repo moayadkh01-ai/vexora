@@ -3,7 +3,7 @@
   else root.PoolPhysics = factory();
 })(typeof self !== 'undefined' ? self : this, function(){
   'use strict';
-  /* VEXORA 8-Ball physics v3 — VERTICAL portrait table (50 × 100 units),
+  /* NoirCue 8-Ball physics v3 — VERTICAL portrait table (50 × 100 units),
      CCD substeps, cue spin (x=side, y=draw/follow), pocket suction,
      deterministic: identical simulation on server and client. */
   const W = 50, H = 100;                       /* portrait: tall table */

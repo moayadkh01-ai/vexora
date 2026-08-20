@@ -1,8 +1,8 @@
 'use strict';
 /* ============================================================
-   VEXORA keeper — deployment supervisor
+   NoirCue keeper — deployment supervisor
    • restores node_modules after a snapshot wipe
-   • starts/restarts the VEXORA server when it's down
+   • starts/restarts the NoirCue server when it's down
    • keeps a Cloudflare tunnel alive (http2/TCP transport)
    • probes the PUBLIC url every 20s; recycles a stale tunnel
      (≤2 failures) so the link self-heals within ~40s
@@ -43,7 +43,7 @@ function ensureDeps(){
 }
 async function ensureServer(){
   if (await localUp()) return true;
-  log('starting VEXORA server…');
+  log('starting NoirCue server…');
   const out = fs.openSync(path.join(DIR, 'data', 'server.log'), 'a');
   const child = spawn('npm', ['start'], { cwd: DIR, detached: true, stdio: ['ignore', out, out] });
   child.unref();

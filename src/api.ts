@@ -1,4 +1,3 @@
-/* VEXORA integrated build — API client (same battle-tested REST backend) */
 export const API = {
   token: null as string | null,
   async call<T = any>(method: string, path: string, body?: any): Promise<T> {
@@ -6,11 +5,10 @@ export const API = {
     if (API.token) headers.Authorization = 'Bearer ' + API.token;
     const r = await fetch('/api' + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
     let j: any = null;
-    try { j = await r.json(); } catch (e) { /* empty */ }
+    try { j = await r.json(); } catch (e) {}
     if (!r.ok || !j || j.ok === false) {
-      const err: any = new Error((j && j.msg) || (j && j.error) || 'خطأ غير متوقع');
-      err.code = j && j.error;
-      err.status = r.status;
+      const err: any = new Error((j && j.msg) || (j && j.error) || 'خطأ');
+      err.code = j && j.error; err.status = r.status;
       throw err;
     }
     return j;
@@ -19,6 +17,5 @@ export const API = {
   post<T = any>(p: string, b?: any) { return API.call<T>('POST', p, b); },
   del<T = any>(p: string) { return API.call<T>('DELETE', p); }
 };
-try { API.token = localStorage.getItem('vexora_token'); } catch (e) { /* sandbox */ }
-
+try { API.token = localStorage.getItem('noircue_token'); } catch (e) {}
 export const fmt = (n: number) => Math.round(n).toLocaleString('en-US');

@@ -21,7 +21,7 @@ window.addEventListener('error', function(e){
       b.id = 'resfail';
       b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:999;background:#7a1f2b;color:#fff;text-align:center;padding:10px 14px;font:700 13px Tahoma,sans-serif;cursor:pointer;border-bottom:1px solid #fda4af';
       b.onclick = function(){ location.reload(); };
-      b.textContent = 'تعذّر تحميل ملفات فيكسورا (نسخة قديمة في الذاكرة) — اضغط هنا للتحديث';
+      b.textContent = 'تعذّر تحميل ملفات نواركيو (نسخة قديمة في الذاكرة) — اضغط هنا للتحديث';
       (document.body || document.documentElement).appendChild(b);
     }
   }
@@ -52,7 +52,7 @@ old_soon = """    + soon.map(x => '<div class="gcard" style="opacity:.62" onclic
       + '<button class="btn ghost small wfull play">أعلمني</button></div></div>').join('')
     + '</div>'"""
 new_soon = """    + '</div>'
-    + '<div class="more-note">المزيد من الألعاب (بلياردو ٩ · دامة · دوراك · دومينو · رامي · دارتس) تُضاف تباعًا ضمن موسم فيكسورا القادم 🎯</div>'"""
+    + '<div class="more-note">المزيد من الألعاب (بلياردو ٩ · دامة · دوراك · دومينو · رامي · دارتس) تُضاف تباعًا ضمن موسم نواركيو القادم 🎯</div>'"""
 assert old_soon in v, 'soon block anchor'
 v = v.replace(old_soon, new_soon)
 
@@ -64,8 +64,8 @@ print('views ok (no more قريباً)')
 
 # ---------- 3) core.js: build stamp in footer ----------
 c = open('public/core.js', encoding='utf-8').read()
-old_f = """    + '<div class="ftr-bot"><p>VEXORA وعملات فيكسورا علامات تجارية لشركة VEXORA Entertainment · <span class="num">© 2026</span></p><div>العب بلا حدود</div></div>'"""
-new_f = """    + '<div class="ftr-bot"><p>VEXORA وعملات فيكسورا علامات تجارية لشركة VEXORA Entertainment · <span class="num">© 2026</span> · <span class="num" dir="ltr">' + (window.VX_BUILD || '') + '</span></p><div>العب بلا حدود</div></div>'"""
+old_f = """    + '<div class="ftr-bot"><p>NoirCue وعملات نواركيو علامات تجارية لشركة NoirCue Entertainment · <span class="num">© 2026</span></p><div>العب بلا حدود</div></div>'"""
+new_f = """    + '<div class="ftr-bot"><p>NoirCue وعملات نواركيو علامات تجارية لشركة NoirCue Entertainment · <span class="num">© 2026</span> · <span class="num" dir="ltr">' + (window.VX_BUILD || '') + '</span></p><div>العب بلا حدود</div></div>'"""
 assert old_f in c
 c = c.replace(old_f, new_f)
 open('public/core.js','w',encoding='utf-8').write(c)
@@ -85,7 +85,7 @@ old_rooms = """    const insRoom = db.prepare('INSERT OR IGNORE INTO gchat_rooms
     insRoom.run(9, 'الدعم والمشاكل', '🛠️', 9);
     insRoom.run(10, 'دردشة حرة', '🌍', 10);"""
 new_rooms = """    const insRoom = db.prepare('INSERT INTO gchat_rooms (id,name,emoji,sort) VALUES (?,?,?,?) ON CONFLICT(id) DO UPDATE SET name = excluded.name, emoji = excluded.emoji');
-    insRoom.run(1, 'ديوانية فيكسورا', '🛋️', 1);
+    insRoom.run(1, 'ديوانية نواركيو', '🛋️', 1);
     insRoom.run(2, 'السوالف العامة', '💬', 2);
     insRoom.run(3, 'ساحة التحدي', '⚔️', 3);
     insRoom.run(4, 'استراحة الألعاب', '☕', 4);

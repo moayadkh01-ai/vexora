@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — Realtime hub
+   NoirCue — Realtime hub
    Every outgoing event is persisted to the `events` table with a
    sequence number, then delivered over WebSocket. If WS is not
    reachable (restrictive proxies), the client transparently falls

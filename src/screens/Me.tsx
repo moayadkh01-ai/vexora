@@ -46,14 +46,14 @@ export default function MeScreen({ me, onRefresh, onLogout }: { me: MeT; onRefre
       </div>
 
       <div className="card" style={{ marginTop: 12, textAlign: 'center', borderColor: 'rgba(255,201,69,.35)' }}>
-        <div style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 800, letterSpacing: '.2em' }}>محفظة عملات فيكسورا</div>
+        <div style={{ fontSize: 11, color: 'var(--gold)', fontWeight: 800, letterSpacing: '.2em' }}>محفظة عملات نواركيو</div>
         <div style={{ fontSize: 32, fontWeight: 900, color: 'var(--gold)' }} className="num">{fmt(me.coins)}</div>
         <button className={'btn ' + (wallet && wallet.can_daily ? 'primary' : 'ghost')} style={{ marginTop: 10 }} disabled={!(wallet && wallet.can_daily)} onClick={daily}>
           🎁 {wallet && wallet.can_daily ? 'استلم المكافأة اليومية' : 'استلمتها — عد لاحقًا'}
         </button>
       </div>
 
-      <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 800, margin: '16px 0 10px' }}>متجر فيكسورا — عناصر بالعملات</div>
+      <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 800, margin: '16px 0 10px' }}>متجر نواركيو — عناصر بالعملات</div>
       {vcItems.map(it => (
         <div key={it.id} className="gamecard" onClick={() => buy(it.id)}>
           <div className="gi" style={{ background: 'var(--glass)', fontSize: 20 }}>{it.kind === 'stick' ? '🎱' : it.kind === 'emoji' ? '😀' : '🎨'}</div>
@@ -77,7 +77,7 @@ export default function MeScreen({ me, onRefresh, onLogout }: { me: MeT; onRefre
       ) : null}
 
       <button className="btn ghost wfull" style={{ marginTop: 16 }} onClick={onLogout}>تسجيل الخروج</button>
-      <div style={{ textAlign: 'center', fontSize: 10, color: 'var(--muted)', marginTop: 14 }}>VEXORA · فيكسورا · v2-integrated</div>
+      <div style={{ textAlign: 'center', fontSize: 10, color: 'var(--muted)', marginTop: 14 }}>NoirCue · نواركيو · v2-integrated</div>
     </>
   );
 }

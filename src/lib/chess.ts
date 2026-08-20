@@ -1,4 +1,4 @@
-/* VEXORA — full chess rules engine (ported from battle-tested server engine, 133-test proven) */
+/* NoirCue — full chess rules engine (ported from battle-tested server engine, 133-test proven) */
 export type Color = 'w' | 'b';
 export interface ChessState { b: string[]; turn: Color; cast: Record<string, boolean>; ep: number; over: boolean; winner: Color | null; last: [number, number] | null; }
 export interface Move { from: number; to: number; flag?: string; promo?: string; }

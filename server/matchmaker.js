@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — Matchmaker + room lifecycle + settlement
+   NoirCue — Matchmaker + room lifecycle + settlement
    Queue → pairing (rating window widens with wait) → room.
    All coin movement happens in SQLite transactions here.
    ============================================================ */
@@ -112,7 +112,7 @@ function enqueue(user, game){
   if (!games.GAMES[game]) return { err: 'UNKNOWN_GAME' };
   const g = games.GAMES[game];
   if (g.soon) return { err: 'NOT_AVAILABLE', msg: 'هذه اللعبة قادمة قريبًا' };
-  if (user.coins < cfgEntry()) return { err: 'INSUFFICIENT_FUNDS', msg: 'تحتاج عملات فيكسورا أكثر لدخول الطابور' };
+  if (user.coins < cfgEntry()) return { err: 'INSUFFICIENT_FUNDS', msg: 'تحتاج عملات نواركيو أكثر لدخول الطابور' };
   if (stmt.qGet.get(user.id)) return { err: 'ALREADY_QUEUED' };
   if (cleanStaleRoom(user.id)) return { err: 'ALREADY_IN_ROOM', msg: 'لديك غرفة أو مباراة جارية — عد إليها أو غادرها من اللوبي' };
   stmt.qIns.run(user.id, game, user.rating, now());
@@ -369,13 +369,13 @@ function settle(room, state, winnerSlot, draw){
     const wu = draw ? null : q.userById.get(winnerId);
     if (room.vs_ai){
       if (winnerSlot === 1){
-        notify(host.id, 'win', 'فوز رائع! 🏆', '+' + require('./config').C4_AI_WIN + ' عملة فيكسورا أُضيفت لمحفظتك.');
+        notify(host.id, 'win', 'فوز رائع! 🏆', '+' + require('./config').C4_AI_WIN + ' عملة نواركيو أُضيفت لمحفظتك.');
         checkAchievements(host);
       } else if (!draw){
         notify(host.id, 'loss', 'خسارة هذه المرة', 'جرّب مجددًا — الحظ يضرّب من جديد.');
       }
     } else if (wu){
-      notify(wu.id, 'win', 'فوز رائع! 🏆', '+' + room.pot + ' عملة فيكسورا أُضيفت لمحفظتك.');
+      notify(wu.id, 'win', 'فوز رائع! 🏆', '+' + room.pot + ' عملة نواركيو أُضيفت لمحفظتك.');
       checkAchievements(wu);
     }
   })();
@@ -397,9 +397,9 @@ function checkAchievements(u){
   const fresh = q.userById.get(u.id);
   const got = JSON.parse(fresh.achievements || '[]');
   const add = [];
-  if (fresh.wins >= 1 && !got.includes('firstwin')) add.push(['firstwin', 'أول فوز', 'فزت بأول مباراة رسمية في فيكسورا']);
+  if (fresh.wins >= 1 && !got.includes('firstwin')) add.push(['firstwin', 'أول فوز', 'فزت بأول مباراة رسمية في نواركيو']);
   if (fresh.streak >= 3 && !got.includes('streak3')) add.push(['streak3', 'ثلاثية نارية', 'ثلاثة انتصارات متتالية']);
-  if (fresh.coins >= 25000 && !got.includes('rich')) add.push(['rich', 'ثري فيكسورا', 'رصيدك تجاوز 25,000 عملة']);
+  if (fresh.coins >= 25000 && !got.includes('rich')) add.push(['rich', 'ثري نواركيو', 'رصيدك تجاوز 25,000 عملة']);
   if (add.length){
     add.forEach(a => { got.push(a[0]); notify(fresh.id, 'إنجاز جديد: ' + a[1], a[2]); });
     db.prepare('UPDATE users SET achievements = ? WHERE id = ?').run(JSON.stringify(got), fresh.id);
@@ -446,7 +446,7 @@ function safeState(room, forUserId){
     board: state.b || null, turn: state.turn, over: state.over, winner: state.winner, winCells: state.win || [], last: state.last,
     you: slotOf(room, forUserId),
     host: { id: host.id, username: host.username, rating: host.rating, hue: host.hue },
-    guest: guest ? { id: guest.id, username: guest.username, rating: guest.rating, hue: guest.hue } : (room.vs_ai ? { id: 0, username: 'VEXORA AI', rating: 1100, hue: 200 } : null),
+    guest: guest ? { id: guest.id, username: guest.username, rating: guest.rating, hue: guest.hue } : (room.vs_ai ? { id: 0, username: 'NoirCue AI', rating: 1100, hue: 200 } : null),
     created_at: room.created_at
   };
   /* game-specific views */

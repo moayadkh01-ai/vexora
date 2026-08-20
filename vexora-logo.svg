@@ -37,11 +37,11 @@
   </g>
 
   <!-- wordmark -->
-  <text x="480" y="452" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="900" letter-spacing="26" fill="#eef1fb">VEXORA</text>
+  <text x="480" y="452" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="900" letter-spacing="26" fill="#eef1fb">NoirCue</text>
   <text x="480" y="494" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="700" letter-spacing="58" fill="#98a2c0">GAMES</text>
 
   <!-- arabic name -->
-  <text x="480" y="546" text-anchor="middle" font-family="'Segoe UI','Noto Naskh Arabic',Tahoma,sans-serif" font-size="34" fill="#c9d2ee">فيكسورا</text>
+  <text x="480" y="546" text-anchor="middle" font-family="'Segoe UI','Noto Naskh Arabic',Tahoma,sans-serif" font-size="34" fill="#c9d2ee">نواركيو</text>
 
   <!-- tagline -->
   <text x="480" y="592" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="12" fill="#5f6a8c">PLAY BEYOND LIMITS</text>

@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — Server Configuration
+   NoirCue — Server Configuration
    All secrets come from environment variables (or a .env file
    placed in the project root — see config.example.env).
    ============================================================ */
@@ -22,7 +22,7 @@ const bool = (k, d) => env(k, d ? '1' : '0') === '1' || env(k, d) === 'true';
 const cfg = {
   PORT: parseInt(env('PORT', '3000'), 10),
   HOST: env('HOST', '0.0.0.0'),
-  DB_PATH: env('DB_PATH', path.join(__dirname, '..', 'data', 'vexora.db')),
+  DB_PATH: env('DB_PATH', path.join(__dirname, '..', 'data', 'noircue.db')),
 
   /* economy */
   WELCOME_VC: parseInt(env('WELCOME_VC', '1000'), 10),
@@ -38,8 +38,8 @@ const cfg = {
   COOKIE_SECURE: bool('COOKIE_SECURE', false),
 
   /* admin bootstrap (change immediately in production) */
-  ADMIN_EMAIL: env('ADMIN_EMAIL', 'admin@vexora.gg'),
-  ADMIN_USER: env('ADMIN_USER', 'VEXORA_Admin'),
+  ADMIN_EMAIL: env('ADMIN_EMAIL', 'admin@noircue.gg'),
+  ADMIN_USER: env('ADMIN_USER', 'NoirCue_Admin'),
   ADMIN_PASS: env('ADMIN_PASS', 'admin123'),
 
   /* ── Payments ─────────────────────────────────────────────

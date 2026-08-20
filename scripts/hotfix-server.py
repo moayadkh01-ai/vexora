@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# VEXORA hotfix patcher (UI portrait + ALREADY_IN_ROOM)
+# NoirCue hotfix patcher (UI portrait + ALREADY_IN_ROOM)
 import re, sys
 
 # 1) config: stale thresholds

@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — End-to-end test suite
+   NoirCue — End-to-end test suite
    Boots a real server on a throwaway DB and exercises:
    auth · wallet · store/inventory · payments (order pipeline +
    idempotency) · friends · rooms · matchmaking (WS + long-poll)
@@ -14,7 +14,7 @@ const WebSocket = require('ws');
 
 const PORT = parseInt(process.env.TEST_PORT || String(3700 + Math.floor(Math.random() * 200)), 10);
 const B = 'http://127.0.0.1:' + PORT;
-const DB = '/tmp/vexora-test-' + Date.now() + '.db';
+const DB = '/tmp/noircue-test-' + Date.now() + '.db';
 
 let passed = 0, failed = 0;
 const fails = [];
@@ -76,7 +76,7 @@ function rtClient(token, onEvent){
 }
 
 /* ---- engine unit tests (Reversi) ---- */
-process.env.DB_PATH = '/tmp/vexora-unit-' + Date.now() + '.db';
+process.env.DB_PATH = '/tmp/noircue-unit-' + Date.now() + '.db';
 const ENG = require('../server/games');
 console.log('— reversi engine units');
 {
@@ -110,7 +110,7 @@ console.log('— reversi engine units');
 }
 
 async function main(){
-  console.log('VEXORA e2e — booting server (db: ' + DB + ')');
+  console.log('NoirCue e2e — booting server (db: ' + DB + ')');
   fs.rmSync(DB, { force: true });
   fs.rmSync(DB + '-shm', { force: true });
   fs.rmSync(DB + '-wal', { force: true });
@@ -152,15 +152,15 @@ async function main(){
   T('reserved username rejected', r.j && r.j.error === 'RESERVED');
   r = await api('POST', "/api/auth/register", { username: "robert'); DROP TABLE users;--", email: 'a@b.gg', password: 'password123' });
   T('sql-ish username rejected', r.status === 400);
-  r = await api('POST', '/api/auth/register', { username: 'Layla_KW', email: 'layla@vexora.gg', password: 'layla12345' });
+  r = await api('POST', '/api/auth/register', { username: 'Layla_KW', email: 'layla@noircue.gg', password: 'layla12345' });
   T('register ok', r.status === 200 && r.j.token && r.j.user.username === 'Layla_KW', { s: r.status, j: r.j });
   const laylaTok = r.j.token;
   r = await api('GET', '/api/me', null, laylaTok);
   T('welcome bonus 1000 credited', r.j.coins === 1000, r.j.coins);
-  r = await api('POST', '/api/auth/register', { username: 'Omar_Q8', email: 'omar@vexora.gg', password: 'omar12345' });
+  r = await api('POST', '/api/auth/register', { username: 'Omar_Q8', email: 'omar@noircue.gg', password: 'omar12345' });
   const omarTok = r.j.token, omarId = r.j.user.id;
   T('second register ok', r.status === 200);
-  r = await api('POST', '/api/auth/login', { id: 'layla@vexora.gg', password: 'wrong' });
+  r = await api('POST', '/api/auth/login', { id: 'layla@noircue.gg', password: 'wrong' });
   T('wrong password rejected', r.status === 401);
   r = await api('POST', '/api/auth/login', { id: 'LAYLA_KW', password: 'layla12345' });
   T('login case-insensitive by username', r.status === 200 && r.j.token);
@@ -188,7 +188,7 @@ async function main(){
   r = await api('POST', '/api/store/buy', { item_id: 'emo_gold' }, omarTok); // 1800 > 1000
   T('omar cant afford emoji pack either', r.status === 402);
   /* give omar coins via admin later; first equip flow with admin grant */
-  const adm = await api('POST', '/api/auth/login', { id: 'admin@vexora.gg', password: 'admin123' });
+  const adm = await api('POST', '/api/auth/login', { id: 'admin@noircue.gg', password: 'admin123' });
   const admTok = adm.j.token;
   r = await api('POST', '/api/admin/users/' + omarId + '/grant', { coins: 5000, reason: 'test grant' }, admTok);
   T('admin grant works', r.status === 200 && r.j.coins === 6000, r.j);
@@ -364,7 +364,7 @@ async function main(){
   r = await api('GET', '/api/chat/rooms', null, laylaTok);
   T('exactly 10 public chat rooms listed', r.status === 200 && r.j && r.j.rooms && r.j.rooms.length === 10, r.j ? (r.j.rooms || []).length : ('status ' + r.status));
   T('rooms are the numbered set (غرفة 1..10)', r.j.rooms[0].name.indexOf('غرفة 1') >= 0 && r.j.rooms[9].name.indexOf('غرفة 10') >= 0);
-  r = await api('POST', '/api/chat/rooms/1/messages', { text: 'هلا فيكسورا! أول سالفة 🎮' }, laylaTok);
+  r = await api('POST', '/api/chat/rooms/1/messages', { text: 'هلا نواركيو! أول سالفة 🎮' }, laylaTok);
   T('message posted', r.status === 200 && r.j.msg.text.indexOf('سالفة') >= 0);
   r = await api('POST', '/api/chat/rooms/1/messages', { text: '' }, laylaTok);
   T('empty message rejected', r.status === 400);

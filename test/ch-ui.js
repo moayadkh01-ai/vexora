@@ -4,7 +4,7 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 const path = require('path');
 const PORT = 3915, B = 'http://127.0.0.1:' + PORT, DB = '/tmp/chv2-' + Date.now() + '.db';
-const srv = spawn(process.execPath, [path.join('/home/user/vexora','server','index.js')], { env: { ...process.env, PORT: String(PORT), DB_PATH: DB }, stdio: ['ignore','ignore','pipe'] });
+const srv = spawn(process.execPath, [path.join('/home/user/noircue','server','index.js')], { env: { ...process.env, PORT: String(PORT), DB_PATH: DB }, stdio: ['ignore','ignore','pipe'] });
 srv.stderr.on('data', d => process.stderr.write('[srv] ' + d));
 process.on('exit', () => srv.kill());
 const sleep = ms => new Promise(r => setTimeout(r, ms));

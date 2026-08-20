@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — Security & validation
+   NoirCue — Security & validation
    rate limiting · input validation · sanitization
    ============================================================ */
 
@@ -44,7 +44,7 @@ function cleanText(s, max){
   if (typeof s !== 'string') return '';
   return s.replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, '').trim().slice(0, max);
 }
-const RESERVED = ['vexora','admin','administrator','root','system','support','staff','moderator','فيكسورا','الإدارة'];
+const RESERVED = ['noircue','admin','administrator','root','system','support','staff','moderator','نواركيو','الإدارة'];
 function isReserved(s){
   return RESERVED.indexOf(String(s).toLowerCase()) >= 0;
 }

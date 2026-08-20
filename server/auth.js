@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA — Authentication
+   NoirCue — Authentication
    scrypt password hashing · opaque session tokens (hashed at rest)
    ============================================================ */
 const crypto = require('crypto');
@@ -32,7 +32,7 @@ function revokeUserSessions(userId){ q.sessionDelUser.run(userId); }
 function tokenFromReq(req){
   const h = req.headers.authorization;
   if (h && h.startsWith('Bearer ')) return h.slice(7);
-  if (req.cookies && req.cookies.vexora_token) return req.cookies.vexora_token;
+  if (req.cookies && req.cookies.noircue_token) return req.cookies.noircue_token;
   if (req.query && req.query.token) return String(req.query.token);
   return null;
 }
@@ -45,7 +45,7 @@ function authMiddleware(req, res, next){
   if (!sess) return res.status(401).json({ error: 'AUTH_REQUIRED', msg: 'الجلسة منتهية — سجّل دخولك مجددًا' });
   const user = q.userById.get(sess.user_id);
   if (!user) return res.status(401).json({ error: 'AUTH_REQUIRED', msg: 'الحساب غير موجود' });
-  if (user.banned) return res.status(403).json({ error: 'BANNED', msg: 'هذا الحساب موقوف. تواصل مع دعم فيكسورا.' });
+  if (user.banned) return res.status(403).json({ error: 'BANNED', msg: 'هذا الحساب موقوف. تواصل مع دعم نواركيو.' });
   if (user.vip && user.vip_until && user.vip_until < now()){       /* lazy VIP expiry */
     db.prepare('UPDATE users SET vip = NULL, vip_until = 0 WHERE id = ?').run(user.id);
     user.vip = null; user.vip_until = 0;
@@ -62,14 +62,14 @@ function requireAdmin(req, res, next){
 
 function setAuthCookie(res, token){
   res.setHeader('Set-Cookie',
-    `vexora_token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${cfg.SESSION_DAYS * 86400}` +
+    `noircue_token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${cfg.SESSION_DAYS * 86400}` +
     (cfg.COOKIE_SECURE ? '; Secure' : ''));
 }
 function clearAuthCookie(res){
-  res.setHeader('Set-Cookie', 'vexora_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
+  res.setHeader('Set-Cookie', 'noircue_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
 }
 
-/* wallet — the ONLY path that may move VEXORA Coins. audit-logged.
+/* wallet — the ONLY path that may move NoirCue Coins. audit-logged.
    Pass a truthy 5th arg when already inside an outer transaction. */
 function walletMove(userId, delta, reason, ref, insideTx){
   const body = () => {

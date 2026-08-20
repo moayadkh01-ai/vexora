@@ -1,6 +1,6 @@
 'use strict';
 /* ============================================================
-   VEXORA Chess engine — full rules, server-authoritative
+   NoirCue Chess engine — full rules, server-authoritative
    board: 64 chars, index 0 = a8 (top-left), 63 = h1
    uppercase = white, lowercase = black, '.' = empty
    ============================================================ */

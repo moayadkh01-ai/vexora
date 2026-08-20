@@ -7,7 +7,7 @@ new = """  /* ============ 7.6 PUBLIC CHAT ROOMS (غرف السواليف) =====
   r = await api('GET', '/chat/rooms', null, laylaTok);
   T('exactly 10 public chat rooms listed', r.status === 200 && r.j.rooms.length === 10, r.j.rooms && r.j.rooms.length);
   T('rooms are the curated Arabic set', r.j.rooms[0].name.indexOf('العامة') >= 0 && r.j.rooms[9].name.indexOf('حرة') >= 0);
-  r = await api('POST', '/chat/rooms/1/messages', { text: 'هلا فيكسورا! أول سالفة 🎮' }, laylaTok);
+  r = await api('POST', '/chat/rooms/1/messages', { text: 'هلا نواركيو! أول سالفة 🎮' }, laylaTok);
   T('message posted', r.status === 200 && r.j.msg.text.indexOf('سالفة') >= 0);
   r = await api('POST', '/chat/rooms/1/messages', { text: '' }, laylaTok);
   T('empty message rejected', r.status === 400);

@@ -1,12 +1,12 @@
 'use strict';
 /* ============================================================
-   VEXORA — Seed: store catalog + admin bootstrap
+   NoirCue — Seed: store catalog + admin bootstrap
    ============================================================ */
 const { db, now, q, cfg } = require('./db');
 const { hashPassword } = require('./auth');
 
 const CATALOG = [
-  /* ---- VEXORA Coin packs (cash) ---- */
+  /* ---- NoirCue Coin packs (cash) ---- */
   { id: 'pack_5k',   kind: 'pack', name_ar: '٥٬٠٠٠ عملة',  name_en: '5,000 VC',   desc_ar: 'حزمة البداية',            price_vc: 0, usd: 499,  coins: 5000,   bonus: 0,  sort: 10 },
   { id: 'pack_10k',  kind: 'pack', name_ar: '١٠٬٠٠٠ عملة', name_en: '10,000 VC',  desc_ar: 'مكافأة إضافية ‎+10%',      price_vc: 0, usd: 999,  coins: 11000,  bonus: 10, sort: 11 },
   { id: 'pack_25k',  kind: 'pack', name_ar: '٢٥٬٠٠٠ عملة', name_en: '25,000 VC',  desc_ar: 'مكافأة إضافية ‎+20%',      price_vc: 0, usd: 1999, coins: 30000,  bonus: 20, sort: 12 },
@@ -22,9 +22,9 @@ const CATALOG = [
   { id: 'stick_dragon',  kind: 'stick', name_ar: 'عصية التنين',   name_en: 'Dragon Cue',    desc_ar: 'نقش تنين ذهبي أسطوري',           price_vc: 6000, usd: 0, sort: 32 },
   { id: 'stick_phantom', kind: 'stick', name_ar: 'عصية الشبح',    name_en: 'Phantom Cue',   desc_ar: 'سوداء مطفأة — إصدار محدود',      price_vc: 9000, usd: 0, sort: 33 },
   /* ---- Premium emoji packs (VC) ---- */
-  { id: 'vex',       kind: 'emoji', name_ar: 'وجوه فيكسورا الأساسية', name_en: 'VEXORA Starter', desc_ar: 'مجانية للجميع', price_vc: 0, usd: 0, sort: 40, meta: { emojis: ['🎮','🔥','😂','😮','😢','👋'] } },
+  { id: 'vex',       kind: 'emoji', name_ar: 'وجوه نواركيو الأساسية', name_en: 'NoirCue Starter', desc_ar: 'مجانية للجميع', price_vc: 0, usd: 0, sort: 40, meta: { emojis: ['🎮','🔥','😂','😮','😢','👋'] } },
   { id: 'emo_gold',  kind: 'emoji', name_ar: 'حزمة الذهب',    name_en: 'Gold Pack',    desc_ar: 'ملكات، جواهر وأكواب',            price_vc: 1800, usd: 0, sort: 41, meta: { emojis: ['👑','💎','🏆','🥇','💰','⚡'] } },
-  { id: 'emo_neon',  kind: 'emoji', name_ar: 'حزمة النيون',   name_en: 'Neon Pack',    desc_ar: 'وجوه نيون مخصصة لفيكسورا',       price_vc: 2200, usd: 0, sort: 42, meta: { emojis: ['😎','🤖','👾','🚀','🌟','🎯'] } },
+  { id: 'emo_neon',  kind: 'emoji', name_ar: 'حزمة النيون',   name_en: 'Neon Pack',    desc_ar: 'وجوه نيون مخصصة لنواركيو',       price_vc: 2200, usd: 0, sort: 42, meta: { emojis: ['😎','🤖','👾','🚀','🌟','🎯'] } },
   { id: 'emo_kawaii',kind: 'emoji', name_ar: 'حزمة الكاواي',  name_en: 'Kawaii Pack',  desc_ar: 'لطيفة ومرحة',                     price_vc: 2600, usd: 0, sort: 43, meta: { emojis: ['🥰','🐱','🍓','🎈','🎁','🦄'] } },
   /* ---- Table themes & frames (VC) ---- */
   { id: 'theme_cyan',     kind: 'theme', name_ar: 'طاولة سماوية',  name_en: 'Cyan Table',   desc_ar: 'قماش سماوي متوهج لطاولات البلياردو', price_vc: 4000, usd: 0, sort: 50 },

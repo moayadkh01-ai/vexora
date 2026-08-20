@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# VEXORA — full Railway deployment (run by the agent)
+# NoirCue — full Railway deployment (run by the agent)
 # Env: RAILWAY_TOKEN=<project token>  [ADMIN_PASS=<strong>]
 # Deploys the app, sets production variables, attaches a
 # persistent volume at /data and generates the public domain.
@@ -19,7 +19,7 @@ echo "▶ 1/4 deploying service…"
 echo "▶ 2/4 setting environment…"
 "$RY" variables set \
   --kv "NODE_ENV=production" \
-  --kv "DB_PATH=/data/vexora.db" \
+  --kv "DB_PATH=/data/noircue.db" \
   --kv "COOKIE_SECURE=1" \
   --kv "ADMIN_PASS=${ADMIN_PASS:-admin123}" \
   --kv "PAYMENTS_SIMULATE=1" 2>&1 | tail -2 || true

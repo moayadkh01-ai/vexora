@@ -1,6 +1,6 @@
-# VEXORA · فيكسورا — Online Multiplayer Gaming Platform
+# NoirCue · نواركيو — Online Multiplayer Gaming Platform
 
-A real client–server gaming platform: **Node.js + Express + SQLite + WebSockets**, with a fully **Arabic RTL** player interface on the original VEXORA brand.
+A real client–server gaming platform: **Node.js + Express + SQLite + WebSockets**, with a fully **Arabic RTL** player interface on the original NoirCue brand.
 
 n> **Permanent 24/7 hosting:** see [DEPLOY.md](DEPLOY.md) — provide one credential (Railway token / Render key / VPS SSH) and the agent deploys + verifies it.
 > **العب بلا حدود · Play Beyond Limits**
@@ -38,13 +38,13 @@ new link in `data/PUBLIC_URL`.
 The quick-tunnel subdomain can change if the tunnel recycles — `data/PUBLIC_URL`
 always holds the live link. For a **fixed, never-changing domain**, either:
 - create a named Cloudflare tunnel (`cloudflared tunnel login && cloudflared
-  tunnel create vexora`) and add `--token <TUNNEL_TOKEN>` to the script, or
+  tunnel create noircue`) and add `--token <TUNNEL_TOKEN>` to the script, or
 - deploy to any Node host (Render/Railway/VPS): `npm install && npm start`.
   No code changes needed.
 
-- The **admin account** is bootstrapped on first run: `admin@vexora.gg` / `admin123` (change via `.env`).
+- The **admin account** is bootstrapped on first run: `admin@noircue.gg` / `admin123` (change via `.env`).
 - Players register their own accounts (welcome bonus **+1,000 VC** credited on the server).
-- All state (accounts, wallets, rooms, inventory, orders, friendships) persists in `data/vexora.db`.
+- All state (accounts, wallets, rooms, inventory, orders, friendships) persists in `data/noircue.db`.
 
 ## Tests
 
@@ -66,9 +66,9 @@ server/                    ← all game logic & money is server-authoritative
 ├── config.js     env config (.env supported — see config.example.env)
 ├── db.js         SQLite (WAL) schema + prepared statements
 ├── auth.js       scrypt hashing · opaque session tokens (hashed at rest) ·
-│                 walletMove() — the ONLY path that moves VEXORA Coins
+│                 walletMove() — the ONLY path that moves NoirCue Coins
 ├── security.js   rate limiting · input validation · sanitization
-├── games.js      game engines (pluggable): VEXORA Connect + VEXORA Reversi
+├── games.js      game engines (pluggable): NoirCue Connect + NoirCue Reversi
 │                 (أوثيلو) — turns, legality, auto-pass, wins, server AI
 ├── matchmaker.js queue → rating-based pairing → rooms → settlement (Elo, pots)
 ├── rt.js         realtime hub: every event persisted with a seq number and
@@ -78,13 +78,13 @@ server/                    ← all game logic & money is server-authoritative
 ├── api.js        REST API (validated, rate-limited, role-guarded)
 └── seed.js       store catalog + admin bootstrap
 
-public/           Arabic RTL single-page client (VEXORA design system)
+public/           Arabic RTL single-page client (NoirCue design system)
 test/             e2e + DOM integration suites
 ```
 
 ### Games (both live & server-authoritative)
-- **VEXORA Connect (فيكسورا كونكت)** — four-in-a-row, 7×6
-- **VEXORA Reversi (أوثيلو)** — 8×8, server-enforced flips, automatic pass when
+- **NoirCue Connect (نواركيو كونكت)** — four-in-a-row, 7×6
+- **NoirCue Reversi (أوثيلو)** — 8×8, server-enforced flips, automatic pass when
   stuck, end by double-pass/full board, winner by disc majority
 - Practice vs a positional server AI, or ranked PvP through matchmaking/rooms
 - Leaving a live human match concedes (pot to opponent); abandoning AI practice closes the table
@@ -103,7 +103,7 @@ One settlement pipeline (`settleOrder`) — idempotent, transactional — with t
 | **Stripe** | Structure ready | Set `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` in `.env`, add webhook `https://YOUR_DOMAIN/api/pay/webhook/stripe` (event `checkout.session.completed`). Until then the API returns `501 CONFIG_REQUIRED` with instructions instead of pretending. |
 | **Manual / dev** | Active by default | Orders go `pending → paid` through the same pipeline via **admin approval** or the clearly-labelled **dev simulator** (`PAYMENTS_SIMULATE=1`), which stands in for the webhook. |
 
-VEXORA Coin purchases (sticks, emoji packs, themes, frames) and VC→cash flows are fully live with real balances. Webhook signature verification (HMAC, timing-safe) included; replays are safely idempotent (tested).
+NoirCue Coin purchases (sticks, emoji packs, themes, frames) and VC→cash flows are fully live with real balances. Webhook signature verification (HMAC, timing-safe) included; replays are safely idempotent (tested).
 
 ### Security
 - scrypt password hashing, timing-safe compares; session tokens stored hashed
@@ -116,10 +116,10 @@ VEXORA Coin purchases (sticks, emoji packs, themes, frames) and VC→cash flows 
 ## Player features (Arabic RTL)
 Registration & login · persistent accounts · lobby with live presence ·
 create/join rooms (public or by 6-char code) · rating-based matchmaking ·
-**VEXORA Connect** playable online (or practice vs server AI) · server-paid
+**NoirCue Connect** playable online (or practice vs server AI) · server-paid
 pots & Elo · room chat with **premium emoji packs** (ownership enforced by the
 server) · **premium cue sticks** (equip shown in room) · wallet with daily
-bonus & VIP multipliers · VEXORA Store (coin packs, VIP, cosmetics) ·
+bonus & VIP multipliers · NoirCue Store (coin packs, VIP, cosmetics) ·
 inventory & equipping · friends (requests/presence + **real challenges**:
 create a private room and invite a friend over realtime) · public player
 profiles · **reconnect**: reload the page mid-match and you're dropped straight
@@ -144,4 +144,4 @@ search, ban/unban, coin grants, order approval, wallet audit log.
 | `server/` | Node.js backend |
 | `test/` | `e2e.js` (78 checks) · `dom.js` (27 checks) |
 | `config.example.env` | documented configuration template |
-| `brand.html`, `vexora-logo.svg` | brand identity files (also served at `/brand.html`) |
+| `brand.html`, `noircue-logo.svg` | brand identity files (also served at `/brand.html`) |

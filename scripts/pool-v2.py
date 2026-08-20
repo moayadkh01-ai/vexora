@@ -10,7 +10,7 @@ P = '''(function (root, factory){
   else root.PoolPhysics = factory();
 })(typeof self !== 'undefined' ? self : this, function(){
   'use strict';
-  /* VEXORA 8-Ball physics v2 — continuous collision (3 substeps/frame),
+  /* NoirCue 8-Ball physics v2 — continuous collision (3 substeps/frame),
      cue-ball spin (draw/follow), pocket suction, deterministic on server+client */
   const W = 100, H = 50;
   const R = 1.35;

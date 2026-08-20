@@ -1,7 +1,7 @@
 {
-  "name": "vexora",
+  "name": "noircue",
   "version": "2.0.0",
-  "description": "VEXORA (فيكسورا) — premium online multiplayer gaming platform (integrated Gamezer-style build)",
+  "description": "NoirCue (نواركيو) — premium online multiplayer gaming platform (integrated Gamezer-style build)",
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",

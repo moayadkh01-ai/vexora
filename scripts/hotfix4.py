@@ -141,7 +141,7 @@ c = c.replace(old_bnav, new_bnav)
 # drawer + header: rename السواليف → الغرف
 c = c.replace("it('chat', 'send', 'غرف السواليف')", "it('chat', 'send', 'الغرف')")
 c = c.replace("navLink('chat', 'send', 'السواليف')", "navLink('chat', 'send', 'الغرف')")
-c = c.replace("chat: 'غرف السواليف — فيكسورا'", "chat: 'الغرف — فيكسورا'")
+c = c.replace("chat: 'غرف السواليف — نواركيو'", "chat: 'الغرف — نواركيو'")
 
 open('public/core.js','w',encoding='utf-8').write(c)
 print('core.js ok')
@@ -197,14 +197,14 @@ v = v.replace(old_cards, new_cards)
 
 # chat tab title text
 v = v.replace("'<h2 class=\"title\">غرف السواليف</h2>'", "'<h2 class=\"title\">الغرف</h2>'")
-v = v.replace("'10 غرف دردشة عامة — تواصل آني مع كل لاعبي فيكسورا'", "'10 غرف دردشة حية — اختر غرفتك وابدأ السوالف فورًا'")
+v = v.replace("'10 غرف دردشة عامة — تواصل آني مع كل لاعبي نواركيو'", "'10 غرف دردشة حية — اختر غرفتك وابدأ السوالف فورًا'")
 open('public/views.js','w',encoding='utf-8').write(v)
 print('views.js ok')
 
 # ================= 4) seed.js: numbered room names =================
 sd = open('server/seed.js', encoding='utf-8').read()
 renames = [
-  ("'ديوانية فيكسورا', '🛋️', 1", "'غرفة 1 — الديوانية', '🛋️', 1"),
+  ("'ديوانية نواركيو', '🛋️', 1", "'غرفة 1 — الديوانية', '🛋️', 1"),
   ("'السوالف العامة', '💬', 2", "'غرفة 2 — السوالف', '💬', 2"),
   ("'ساحة التحدي', '⚔️', 3", "'غرفة 3 — التحدي', '⚔️', 3"),
   ("'استراحة الألعاب', '☕', 4", "'غرفة 4 — الاستراحة', '☕', 4"),
