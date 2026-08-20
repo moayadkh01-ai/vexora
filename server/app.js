@@ -48,7 +48,7 @@ app.use(apiRouter);
 
 /* static client */
 const PUB = path.join(__dirname, '..', 'public');
-app.use(express.static(PUB, { maxAge: '1h', setHeaders: (res, p) => { if (p.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache'); } }));
+app.use(express.static(PUB, { maxAge: 0, setHeaders: (res, p) => { if (p.endsWith('.html') || p.endsWith('.css') || p.endsWith('.js')) res.setHeader('Cache-Control', 'no-cache'); } }));
 
 /* SPA fallback for non-API GETs */
 app.use((req, res, next) => {

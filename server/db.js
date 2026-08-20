@@ -165,6 +165,21 @@ CREATE INDEX IF NOT EXISTS idx_events_user ON events(user_id, seq);
 CREATE INDEX IF NOT EXISTS idx_notif_user ON notifications(user_id, read);
 CREATE INDEX IF NOT EXISTS idx_rooms_status ON rooms(status, game);
 CREATE INDEX IF NOT EXISTS idx_chat_room ON chat_msgs(room_id, id);
+CREATE TABLE IF NOT EXISTS gchat_rooms (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  emoji TEXT NOT NULL DEFAULT '💬',
+  sort INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS gchat_msgs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  room_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  text TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_gchat ON gchat_msgs(room_id, id DESC);
 `);
 
 const tx = db.transaction.bind(db);

@@ -234,6 +234,37 @@ api.post('/pay/simulate/:orderId', (req, res) => {
 
 api.get('/pay/orders', (req, res) => ok(res, { orders: q.ordersBy.all(req.user.id) }));
 
+/* ---------- public chat rooms (غرف السواليف) ---------- */
+api.get('/chat/rooms', (req, res) => {
+  const rooms = db.prepare('SELECT * FROM gchat_rooms ORDER BY sort').all();
+  const last = db.prepare('SELECT m.* FROM gchat_msgs m JOIN (SELECT room_id, MAX(id) mid FROM gchat_msgs GROUP BY room_id) x ON x.mid = m.id').all();
+  const counts = {};
+  db.prepare('SELECT room_id, COUNT(*) c FROM gchat_msgs GROUP BY room_id').all().forEach(r => { counts[r.room_id] = r.c; });
+  const lastBy = {};
+  last.forEach(m => { lastBy[m.room_id] = { text: m.text, name: m.name, at: m.created_at }; });
+  ok(res, { rooms: rooms.map(r => ({ id: r.id, name: r.name, emoji: r.emoji, msgs: counts[r.id] || 0, last: lastBy[r.id] || null })) });
+});
+
+api.get('/chat/rooms/:id/messages', (req, res) => {
+  const id = Number(req.params.id);
+  if (!db.prepare('SELECT 1 FROM gchat_rooms WHERE id = ?').get(id)) return fail(res, 404, 'NO_ROOM');
+  const rows = db.prepare('SELECT id, name, text, created_at FROM gchat_msgs WHERE room_id = ? ORDER BY id DESC LIMIT 60').all(id).reverse();
+  ok(res, { messages: rows });
+});
+
+api.post('/chat/rooms/:id/messages', (req, res) => {
+  const id = Number(req.params.id);
+  if (!db.prepare('SELECT 1 FROM gchat_rooms WHERE id = ?').get(id)) return fail(res, 404, 'NO_ROOM');
+  if (!rateHit('gchat:' + req.user.id, 8, 15000)) return fail(res, 429, 'RATE', 'تمهّل شوي — رسائل كثيرة');
+  const text = cleanText((req.body || {}).text, 400);
+  if (!text) return fail(res, 400, 'EMPTY', 'اكتب رسالة');
+  const r = db.prepare('INSERT INTO gchat_msgs (room_id,user_id,name,text,created_at) VALUES (?,?,?,?,?)')
+    .run(id, req.user.id, req.user.username, text, now());
+  const msg = { id: Number(r.lastInsertRowid), room_id: id, name: req.user.username, text, created_at: now() };
+  rt.onlineUserIds().forEach(uid => rt.deliverOnly(uid, { seq: 0, type: 'gchat', data: { msg }, at: now() }));
+  return ok(res, { msg });
+});
+
 /* ---------- friends ---------- */
 api.get('/friends', (req, res) => {
   const rows = db.prepare(`SELECT f.*, ua.username AS a_name, ub.username AS b_name

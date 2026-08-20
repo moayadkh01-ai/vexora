@@ -5,12 +5,31 @@
    server-side and pushed back over realtime.
    ============================================================ */
 
+
+/* guard: room objects from partial events (room:update close/leave) may lack
+   board/balls/moves — never let .map() run on null (hotfix for
+   "Cannot read properties of null (reading 'map')") */
+function sanitizeRoom(obj, prev){
+  if (!obj || typeof obj !== 'object') return obj;
+  const base = prev && typeof prev === 'object' ? prev : {};
+  obj.board = Array.isArray(obj.board) ? obj.board : (Array.isArray(base.board) ? base.board : []);
+  obj.balls = Array.isArray(obj.balls) ? obj.balls : (Array.isArray(base.balls) ? base.balls : []);
+  obj.moves = Array.isArray(obj.moves) ? obj.moves : (Array.isArray(base.moves) ? base.moves : []);
+  obj.winCells = Array.isArray(obj.winCells) ? obj.winCells : (Array.isArray(base.winCells) ? base.winCells : []);
+  obj.pts = Array.isArray(obj.pts) ? obj.pts : (Array.isArray(base.pts) ? base.pts : []);
+  obj.dice = Array.isArray(obj.dice) ? obj.dice : (Array.isArray(base.dice) ? base.dice : []);
+  if (!obj.host && base.host) obj.host = base.host;
+  if (!obj.guest && base.guest) obj.guest = base.guest;
+  if (typeof obj.turn === 'undefined') obj.turn = base.turn !== undefined ? base.turn : 1;
+  return obj;
+}
+
 /* ---------- open room ---------- */
 async function openRoom(roomId, silent){
   try {
     const j = await api('GET', '/rooms/' + roomId);
-    S.roomView = j.room;
-    S.roomChat = j.chat || [];
+    S.roomView = sanitizeRoom(j.room, null);
+    S.roomChat = Array.isArray(j.chat) ? j.chat : [];
     navigate('room');
   } catch(e){ toast('تعذر فتح الغرفة', e.message, 'err'); }
 }
@@ -37,7 +56,7 @@ function chBoardHTML(r){
   const flip = my === 'b';
   const myTurn = !r.over && r.turnColor === my && r.you !== 0 && r.status === 'playing';
   const moves = r.moves || [];
-  const targets = chSel !== null ? moves.filter(m => m.from === chSel) : [];
+  const targets = chSel !== null ? (moves || []).filter(m => m.from === chSel) : [];
   let cells = '';
   for (let v = 0; v < 64; v++){
     const i = flip ? 63 - v : v;
@@ -90,7 +109,7 @@ let bgSel = null;
 function bgBoardHTML(r){
   const myTurn = !r.over && r.turn === r.you && r.you !== 0 && r.status === 'playing';
   const moves = r.moves || [];
-  const targets = bgSel !== null ? moves.filter(m => m.from === bgSel) : [];
+  const targets = bgSel !== null ? (moves || []).filter(m => m.from === bgSel) : [];
   const ptHTML = (pt, top) => {
     const v = (r.pts && r.pts[pt]) || 0;
     const count = Math.abs(v), white = v > 0;
@@ -351,7 +370,8 @@ function vsBar(r, you){
 
 /* ---------- moves (per-game) ---------- */
 function c4BoardHTML(r){
-  return '<div class="c4-board">' + r.board.map((row, ri) => row.map((cell, ci) => {
+  const board = Array.isArray(r.board) ? r.board : [];
+  return '<div class="c4-board">' + board.map((row, ri) => row.map((cell, ci) => {
     const winC = (r.winCells || []).some(w => w[0] === ri && w[1] === ci);
     const last = r.last && r.last[0] === ri && r.last[1] === ci;
     return '<div class="c4-cell' + (cell === 1 ? ' p1' : cell === 2 ? ' p2' : '') + (winC ? ' win' : '') + (last ? ' last' : '') + '" onclick="dropDisc(' + ci + ')"></div>';
@@ -379,7 +399,7 @@ function rvBoardHTML(r){
   legal.forEach(k => legalSet[k] = 1);
   const counts = [0, 0];
   r.board.forEach(row => row.forEach(v => { if (v === 1) counts[0]++; else if (v === 2) counts[1]++; }));
-  const cells = r.board.map((row, ri) => row.map((cell, ci) => {
+  const cells = (Array.isArray(r.board) ? r.board : []).map((row, ri) => row.map((cell, ci) => {
     const hint = legalSet[ri + '-' + ci];
     const last = r.last && r.last[0] === ri && r.last[1] === ci;
     return '<div class="rv-cell' + (cell === 1 ? ' p1' : cell === 2 ? ' p2' : '') + (last ? ' last' : '') + '"'
@@ -619,6 +639,7 @@ async function adminApproveOrder(id){
 const _origNavigate = navigate;
 navigate = function(r){
   _origNavigate(r);
+  if ((r === 'lobby' || r === 'chat') && !S.chatRooms && typeof loadChatRooms === 'function') loadChatRooms();
   if (r === 'store' && !S.storeItems) loadStore();
   if (r === 'wallet') loadWallet();
   if (r === 'friends') loadFriends();

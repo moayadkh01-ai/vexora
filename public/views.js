@@ -62,6 +62,10 @@ function viewLobby(){
     + '<div style="margin-top:34px"><h3 class="section-title">' + icon('door', 20) + ' غرف مفتوحة</h3>'
     + '<div class="section-sub">انضم لغرفة عامة أو أنشئ غرفتك وشارك الرمز</div>'
     + '<div id="rooms-list">' + roomCards() + '</div></div>'
+    + '<div style="margin-top:34px">'
+    + '<h3 class="section-title">' + icon('send', 20) + ' غرف السواليف <span class="chip playable">10 غرف · آني</span></h3>'
+    + '<div class="section-sub">دردشة عامة مباشرة لكل الأعضاء — ادخل وسولف مع اللاعبين</div>'
+    + '<div class="gchat-grid" id="gchat-list">' + gchatCards() + '</div></div>'
     + '</div>'
 
     + '<aside style="display:flex;flex-direction:column;gap:20px">'
@@ -103,7 +107,7 @@ function gameCardPlayable(g){
     + '<button class="btn primary small wfull play">العب الآن</button></div></div>';
 }
 function lbRows(){
-  const top = S.leaderboard || [];
+  const top = Array.isArray(S.leaderboard) ? S.leaderboard : [];
   if (!top.length) return '<div class="empty">لا توجد نتائج بعد — كن أول المتصدرين!</div>';
   return top.map(p =>
     '<div class="lb-row" style="cursor:pointer" onclick="openPublicProfile(\'' + esc(p.username) + '\')"><div class="rk ' + (p.rank <= 3 ? 'r' + p.rank : 'rx') + '">' + p.rank + '</div>'
@@ -111,9 +115,10 @@ function lbRows(){
     + '<div class="cn" style="color:var(--green);font-weight:800"><span class="num">' + p.wins + '</span> فوز</div></div>').join('');
 }
 function roomCards(){
-  if (!S.lobbyRooms.length) return '<div class="empty">لا توجد غرف مفتوحة — أنشئ واحدة وانتظر خصمًا!</div>';
+  const rooms = Array.isArray(S.lobbyRooms) ? S.lobbyRooms : [];
+  if (!rooms.length) return '<div class="empty">لا توجد غرف مفتوحة — أنشئ واحدة وانتظر خصمًا!</div>';
   return '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:13px">'
-    + S.lobbyRooms.map(r =>
+    + rooms.map(r =>
       '<div class="room-card"><span class="code-badge">' + esc(r.code) + '</span>'
       + '<div style="flex:1;min-width:0"><b>' + esc(r.host.username) + '</b>'
       + '<div style="font-size:11.5px;color:var(--muted)">تصنيف <span class="num">' + r.host.rating + '</span> · ' + gameName(r.game) + '</div></div>'
@@ -532,3 +537,83 @@ async function leaveActiveUI(){
     navigate('lobby');
   } catch(e){ toast('تعذرت إعادة التعيين', e.message, 'err'); }
 }
+
+
+/* ============================================================
+   غرف السواليف — public chat rooms (realtime)
+   ============================================================ */
+async function loadChatRooms(){
+  try {
+    const j = await api('GET', '/chat/rooms');
+    S.chatRooms = j.rooms || [];
+    if (S.route === 'lobby'){
+      const el = document.getElementById('gchat-list');
+      if (el) el.innerHTML = gchatCards();
+    }
+  } catch(e){ /* offline tolerant */ }
+}
+function gchatCards(){
+  const rooms = Array.isArray(S.chatRooms) ? S.chatRooms : [];
+  if (!rooms.length) return '<div class="empty">جارٍ تحميل الغرف…</div>';
+  return rooms.map(rm => {
+    const unread = S.chatUnread[rm.id] || 0;
+    return '<div class="gchat-card" onclick="openChatRoom(' + rm.id + ')">'
+      + '<span class="gemoji">' + rm.emoji + '</span>'
+      + '<div class="gmeta"><b>' + esc(rm.name) + (unread ? ' <span class="unread-badge num">' + unread + '</span>' : '') + '</b>'
+      + '<span class="glast">' + (rm.last ? esc(rm.last.name) + ': ' + esc(rm.last.text).slice(0, 44) : 'ابدأ السالفة الأولى ✓') + '</span>'
+      + '<span class="gcount num">' + fmt(rm.msgs) + ' رسالة</span></div>'
+      + '<span class="ggo">' + icon('arrow', 16) + '</span></div>';
+  }).join('');
+}
+function viewChat(){
+  if (!S.chatOpenId){
+    return shell('<h2 class="title">غرف السواليف</h2>'
+      + '<div class="section-sub" style="margin-bottom:14px">10 غرف دردشة عامة — تواصل آني مع كل لاعبي فيكسورا</div>'
+      + '<div class="gchat-grid" style="grid-template-columns:1fr">' + gchatCards() + '</div>', 'السواليف');
+  }
+  const rm = (S.chatRooms || []).find(x => x.id === S.chatOpenId) || { name: 'غرفة', emoji: '💬' };
+  const msgs = S.chatMsgs[S.chatOpenId] || [];
+  const msgsHTML = msgs.length ? msgs.map(m =>
+    '<div class="gmsg' + (m.name === S.me.user.username ? ' me' : '') + '"><b>' + esc(m.name) + '</b>' + esc(m.text) + '<i>' + ago(m.created_at) + '</i></div>'
+  ).join('') : '<div class="empty">لا رسائل بعد — اكتب أول سالفة 👇</div>';
+  return shell(
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">'
+    + '<button class="btn ghost small" onclick="closeChatRoom()">' + icon('arrow', 14) + ' الغرف</button>'
+    + '<span class="gemoji" style="width:34px;height:34px;font-size:18px">' + rm.emoji + '</span>'
+    + '<div style="flex:1"><b>' + esc(rm.name) + '</b><div class="sub" style="font-size:11px">دردشة آنية · ' + fmt(rm.msgs || 0) + ' رسالة</div></div>'
+    + '<span class="onl-dot"></span></div>'
+    + '<div class="card gchat-window"><div class="gmsgs" id="gmsgs">' + msgsHTML + '</div>'
+    + '<div class="gr-input"><input id="gchat-inp" maxlength="400" placeholder="اكتب سالفتك…" onkeydown="gchatEnter(event)">'
+    + '<button class="btn primary small" onclick="sendGchat()">' + icon('send', 15) + '</button></div></div>',
+    'السواليف');
+}
+async function openChatRoom(id){
+  S.chatOpenId = id;
+  S.chatUnread[id] = 0;
+  if (!S.chatMsgs[id]){
+    try {
+      const j = await api('GET', '/chat/rooms/' + id + '/messages');
+      S.chatMsgs[id] = j.messages || [];
+    } catch(e){ S.chatMsgs[id] = []; }
+  }
+  navigate('chat');
+}
+function closeChatRoom(){ S.chatOpenId = null; navigate('chat'); }
+function appendGchatMsg(m){
+  const box = document.getElementById('gmsgs');
+  if (box){
+    box.insertAdjacentHTML('beforeend', '<div class="gmsg' + (m.name === S.me.user.username ? ' me' : '') + '"><b>' + esc(m.name) + '</b>' + esc(m.text) + '<i>الآن</i></div>');
+    box.scrollTop = box.scrollHeight;
+  }
+}
+async function sendGchat(){
+  const inp = document.getElementById('gchat-inp');
+  const text = (inp ? inp.value : '').trim();
+  if (!text || !S.chatOpenId) return;
+  try {
+    await api('POST', '/chat/rooms/' + S.chatOpenId + '/messages', { text });
+    inp.value = '';
+  } catch(e){ toast('لم تُرسل', e.message, 'err'); }
+}
+
+function gchatEnter(ev){ if (ev && ev.key === 'Enter') sendGchat(); }

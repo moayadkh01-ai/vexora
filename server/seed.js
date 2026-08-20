@@ -53,6 +53,18 @@ function seed(){
         .run(cfg.ADMIN_USER, cfg.ADMIN_EMAIL, hashPassword(cfg.ADMIN_PASS), 'admin', 100000, now(), now());
       console.log('[seed] admin account ready →', cfg.ADMIN_EMAIL);
     }
+    /* public chat rooms (غرف السواليف) — idempotent */
+    const insRoom = db.prepare('INSERT OR IGNORE INTO gchat_rooms (id,name,emoji,sort) VALUES (?,?,?,?)');
+    insRoom.run(1, 'السواليف العامة', '💬', 1);
+    insRoom.run(2, 'الترحيب بالأعضاء الجدد', '👋', 2);
+    insRoom.run(3, 'سالفة البلياردو', '🎱', 3);
+    insRoom.run(4, 'سالفة الشطرنج', '♞', 4);
+    insRoom.run(5, 'سالفة الطاولة', '🎲', 5);
+    insRoom.run(6, 'الألعاب والمطابقات', '🎮', 6);
+    insRoom.run(7, 'البطولات والجوائز', '🏆', 7);
+    insRoom.run(8, 'الاقتراحات والأفكار', '💡', 8);
+    insRoom.run(9, 'الدعم والمشاكل', '🛠️', 9);
+    insRoom.run(10, 'دردشة حرة', '🌍', 10);
   });
   run();
 }

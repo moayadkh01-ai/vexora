@@ -359,6 +359,53 @@ async function main(){
   r = await api('POST', '/api/rooms/' + chRoom + '/leave', null, omarTok);
   T('reversi: leaving concedes + pot to winner', r.status === 200 && r.j.conceded === true);
 
+  /* ============ 7.6 PUBLIC CHAT ROOMS (غرف السواليف) ============ */
+  console.log('— public chat rooms (realtime)');
+  r = await api('GET', '/api/chat/rooms', null, laylaTok);
+  T('exactly 10 public chat rooms listed', r.status === 200 && r.j && r.j.rooms && r.j.rooms.length === 10, r.j ? (r.j.rooms || []).length : ('status ' + r.status));
+  T('rooms are the curated Arabic set', r.j.rooms[0].name.indexOf('العامة') >= 0 && r.j.rooms[9].name.indexOf('حرة') >= 0);
+  r = await api('POST', '/api/chat/rooms/1/messages', { text: 'هلا فيكسورا! أول سالفة 🎮' }, laylaTok);
+  T('message posted', r.status === 200 && r.j.msg.text.indexOf('سالفة') >= 0);
+  r = await api('POST', '/api/chat/rooms/1/messages', { text: '' }, laylaTok);
+  T('empty message rejected', r.status === 400);
+  r = await api('GET', '/api/chat/rooms/1/messages', null, omarTok);
+  T('history readable by others', r.status === 200 && r.j.messages.some(m => m.name === 'Layla_KW'));
+  /* realtime: gchat is delivered live (non-persistent) — verify via WS transport */
+  const gchatGot = await new Promise(res => {
+    let done = false;
+    const ws = new WebSocket('ws://127.0.0.1:' + PORT + '/rt?token=' + omarTok);
+    const finish = v => { if (!done){ done = true; try { ws.close(); } catch(e){} res(v); } };
+    ws.on('open', () => {
+      api('POST', '/api/chat/rooms/2/messages', { text: 'ترحيب حيّ 🎉' }, laylaTok).then(() => {});
+    });
+    ws.on('message', raw => {
+      try {
+        const m = JSON.parse(raw);
+        if (m.t === 'event' && m.ev.type === 'gchat' && m.ev.data.msg.text.indexOf('ترحيب') >= 0) finish(true);
+      } catch(e){}
+    });
+    ws.on('error', () => finish(false));
+    setTimeout(() => finish(false), 6000);
+  });
+  T('realtime delivery (gchat over WebSocket)', gchatGot);
+  /* rate limit */
+  let limited = false;
+  for (let i = 0; i < 10 && !limited; i++){
+    const rr = await api('POST', '/api/chat/rooms/3/messages', { text: 'سبام ' + i }, omarTok);
+    if (rr.status === 429) limited = true;
+  }
+  T('spam rate-limited (429)', limited);
+  r = await api('GET', '/api/chat/rooms', null, omarTok);
+  T('rooms show last message + counts', r.j.rooms[1].last && r.j.rooms[1].last.text.indexOf('ترحيب') >= 0 && r.j.rooms[2].msgs >= 8);
+
+  /* null-crash regression: closed-room partial update must keep board arrays */
+  {
+    const cr = await api('POST', '/api/rooms', { game: 'connect4' }, laylaTok);
+    const st = await api('GET', '/api/rooms/' + cr.j.room.id, null, laylaTok);
+    T('room state exposes non-null board', Array.isArray(st.j.room.board) && st.j.room.board.length === 6);
+    await api('POST', '/api/rooms/leave-active', null, laylaTok);
+  }
+
   /* ============ 7.65 STUCK-ROOM HYGIENE (ALREADY_IN_ROOM fix) ============ */
   console.log('— stuck room (ALREADY_IN_ROOM) fixes');
   const Database = require('better-sqlite3');

@@ -78,6 +78,7 @@ function icon(n, s = 18){
 /* ---------- state ---------- */
 const S = {
   token: null, me: null, config: null, presence: { online: 0, counts: {}, openRooms: 0 },
+  chatRooms: null, chatOpenId: null, chatMsgs: {}, chatUnread: {},
   route: 'lobby', authTab: 'login', rt: null, cursor: 0, transport: '—',
   roomView: null, storeTab: 'packs', friends: null, leaderboard: null, lobbyRooms: []
 };
@@ -174,8 +175,25 @@ function handleEvent(ev){
       openRoom(d.roomId, true);
       break;
     case 'room:update':
-      if (S.roomView && S.roomView.id === d.room.id){ S.roomView = d.room; renderRoom(); }
+      if (S.roomView && S.roomView.id === d.room.id){
+        S.roomView = (typeof sanitizeRoom === 'function' ? sanitizeRoom(d.room, S.roomView) : d.room);
+        renderRoom();
+      }
       if (S.route === 'lobby') refreshLobbyBits();
+      break;
+    case 'gchat':                                   /* public chat rooms realtime */
+      {
+        const m = d.msg;
+        if (!m) break;
+        if (!S.chatMsgs[m.room_id]) S.chatMsgs[m.room_id] = [];
+        if (!S.chatMsgs[m.room_id].some(x => x.id === m.id)){ S.chatMsgs[m.room_id].push(m); if (S.chatMsgs[m.room_id].length > 80) S.chatMsgs[m.room_id].shift(); }
+        if (S.route === 'chat' && S.chatOpenId === m.room_id) appendGchatMsg(m);
+        else if (S.route === 'lobby' && S.chatRooms) loadChatRooms();
+        if (S.me && m.name !== S.me.user.username && (S.route !== 'chat' || S.chatOpenId !== m.room_id)){
+          /* light badge: update unread per room */
+          S.chatUnread[m.room_id] = (S.chatUnread[m.room_id] || 0) + 1;
+        }
+      }
       break;
     case 'chat:new':
       if (S.roomView && S.roomView.id === d.roomId) appendChat(d);
@@ -245,7 +263,8 @@ const TITLES = {
   profile: 'ملفي الشخصي',
   friends: 'الأصدقاء',
   room: 'غرفة اللعب',
-  admin: 'لوحة الإدارة — VEXORA'
+  admin: 'لوحة الإدارة — VEXORA',
+  chat: 'غرف السواليف — فيكسورا'
 };
 function navigate(r){
   if (!S.me && r !== 'auth') r = 'auth';
@@ -257,7 +276,7 @@ function navigate(r){
 }
 function routeFromHash(){
   const h = (location.hash || '').replace('#/', '');
-  if (['lobby', 'store', 'wallet', 'profile', 'friends', 'admin', 'room'].indexOf(h) >= 0) return h;
+  if (['lobby', 'store', 'wallet', 'profile', 'friends', 'admin', 'room', 'chat'].indexOf(h) >= 0) return h;
   return null;
 }
 window.addEventListener('hashchange', () => {
@@ -270,7 +289,7 @@ function render(){
   const root = $('#root');
   document.title = (TITLES[S.route] || 'فيكسورا') + ' | VEXORA';
   if (!S.me){ S.route = 'auth'; document.title = 'تسجيل الدخول — فيكسورا'; root.innerHTML = viewAuth(); return; }
-  const views = { lobby: typeof viewLobby === 'function' ? viewLobby : null, store: typeof viewStore === 'function' ? viewStore : null, wallet: typeof viewWallet === 'function' ? viewWallet : null, profile: typeof viewProfile === 'function' ? viewProfile : null, friends: typeof viewFriends === 'function' ? viewFriends : null, room: typeof viewRoomEntry === 'function' ? viewRoomEntry : null, admin: typeof viewAdmin === 'function' ? viewAdmin : null };
+  const views = { lobby: typeof viewLobby === 'function' ? viewLobby : null, store: typeof viewStore === 'function' ? viewStore : null, wallet: typeof viewWallet === 'function' ? viewWallet : null, profile: typeof viewProfile === 'function' ? viewProfile : null, friends: typeof viewFriends === 'function' ? viewFriends : null, room: typeof viewRoomEntry === 'function' ? viewRoomEntry : null, chat: typeof viewChat === 'function' ? viewChat : null, admin: typeof viewAdmin === 'function' ? viewAdmin : null };
   const body = (views[S.route] || views.lobby)();
   root.innerHTML = headerHTML() + body + footerHTML() + drawerHTML() + bottomNavHTML();
 }
@@ -279,11 +298,11 @@ function render(){
 function headerHTML(){
   const u = S.me.user;
   const unread = S.me.unread || 0;
-  const notifs = S.me.notifications || [];
+  const notifs = (S.me && S.me.notifications) || [];
   return '<header class="hdr"><div class="wrap hdr-in">'
     + '<a class="hdr-logo" href="#/lobby" onclick="navigate(\'lobby\')" aria-label="فيكسورا">' + logoFull(38, 21) + '</a>'
     + '<nav class="hdr-nav">'
-    + navLink('lobby', 'home', 'اللوبي') + navLink('store', 'store', 'المتجر') + navLink('wallet', 'wallet', 'المحفظة') + navLink('friends', 'users', 'الأصدقاء')
+    + navLink('lobby', 'home', 'اللوبي') + navLink('chat', 'send', 'السواليف') + navLink('store', 'store', 'المتجر') + navLink('wallet', 'wallet', 'المحفظة') + navLink('friends', 'users', 'الأصدقاء')
     + (u.role === 'admin' ? navLink('admin', 'shield', 'الإدارة') : '')
     + '</nav>'
     + '<div class="hdr-spacer"></div>'
@@ -337,7 +356,7 @@ function drawerHTML(){
   const it = (r, ic, lb) => '<a href="#/' + r + '" class="' + (S.route === r ? 'active' : '') + '" onclick="navigate(\'' + r + '\')">' + icon(ic, 19) + lb + '</a>';
   return '<div class="drawer" id="drawer"><div class="dk" onclick="closeDrawer()"></div><div class="db">'
     + '<div style="padding:6px 8px 16px">' + logoFull(34, 19) + '</div>'
-    + it('lobby', 'home', 'اللوبي') + it('store', 'store', 'المتجر') + it('wallet', 'wallet', 'المحفظة') + it('friends', 'users', 'الأصدقاء') + it('profile', 'user', 'ملفي')
+    + it('lobby', 'home', 'اللوبي') + it('chat', 'send', 'غرف السواليف') + it('store', 'store', 'المتجر') + it('wallet', 'wallet', 'المحفظة') + it('friends', 'users', 'الأصدقاء') + it('profile', 'user', 'ملفي')
     + (u.role === 'admin' ? it('admin', 'shield', 'لوحة الإدارة') : '')
     + '<div style="flex:1"></div>'
     + '<button class="btn ghost wfull" onclick="logout()">' + icon('logout', 16) + ' تسجيل الخروج</button></div></div>';
@@ -345,7 +364,7 @@ function drawerHTML(){
 function bottomNavHTML(){
   const u = S.me.user;
   const it = (r, ic, lb) => '<a href="#/' + r + '" class="' + (S.route === r ? 'active' : '') + '" onclick="navigate(\'' + r + '\')">' + icon(ic, 19) + lb + '</a>';
-  return '<nav class="bottom-nav">' + it('lobby', 'home', 'اللوبي') + it('store', 'store', 'المتجر') + it('wallet', 'wallet', 'المحفظة') + it('friends', 'users', 'الأصدقاء') + (u.role === 'admin' ? it('admin', 'shield', 'الإدارة') : it('profile', 'user', 'ملفي')) + '</nav>';
+  return '<nav class="bottom-nav">' + it('lobby', 'home', 'اللوبي') + it('chat', 'send', 'السواليف') + it('store', 'store', 'المتجر') + it('wallet', 'wallet', 'المحفظة') + it('friends', 'users', 'الأصدقاء') + (u.role === 'admin' ? it('admin', 'shield', 'الإدارة') : it('profile', 'user', 'ملفي')) + '</nav>';
 }
 function footerHTML(){
   return '<footer class="ftr"><div class="wrap">'
