@@ -79,12 +79,33 @@ function chBoardHTML(r){
   const who = 'أنت بالأبيض ♔' ; const who2 = 'أنت بالأسود ♚';
   return '<div class="gstat">' + status + ' <span class="sub2">' + (my === 'w' ? who : who2) + ' · دخول ' + fmt(r.entry) + ' · جائزة ' + fmt(r.pot) + '</span></div>'
     + '<div class="ch-board" dir="ltr">' + cells + '</div>'
-    + (r.over ? endButtonsHTML(r) : '');
+    + (r.over ? endButtonsHTML(r) : '')
+    + '<script>chArmDrag&&chArmDrag()<' + '/script>';
 }
 function endButtonsHTML(r){
   return '<div style="display:flex;gap:10px;margin-top:14px"><button class="btn ghost wfull" onclick="leaveRoomUI(' + r.id + ')">مغادرة</button>'
     + '<button class="btn primary wfull" onclick="practiceAI(\'' + r.game + '\')">مباراة جديدة</button></div>';
 }
+function chArmDrag(){
+  /* drag pieces (touch/mouse) — pointerdown on own piece, pointerup on target */
+  const board = document.querySelector('.ch-board');
+  if (!board || board.__dragArmed) return;
+  board.__dragArmed = true;
+  board.addEventListener('pointerdown', e => {
+    const sq = e.target.closest('.ch-sq');
+    if (!sq) return;
+    const r = S.roomView;
+    if (!r || r.over) return;
+    const my = chMyColor(r);
+    const idxs = [].indexOf.call(board.children, sq);
+    if (idxs < 0) return;
+    const i = (my === 'b') ? 63 - idxs : idxs;
+    const p = r.board ? r.board[i] : '.';
+    const own = p !== '.' && ((p === p.toUpperCase()) === (my === 'w'));
+    if (own && chSel !== i){ chTap(i); }
+  });
+}
+
 async function chTap(i){
   const r = S.roomView;
   if (!r || r.over) return;
@@ -175,20 +196,28 @@ function poolInit(){
   const wrap = cv.parentElement;
   let aim = null;
   function fit(){
-    const w = wrap.clientWidth;
+    let w = wrap.clientWidth || cv.clientWidth || 0;
+    if (w < 60) w = Math.min(360, (document.getElementById('root') || {}).clientWidth || 320);   /* fallback: never 0 → fixes black canvas */
     const dpr = Math.min(2, window.devicePixelRatio || 1);
-    cv.width = Math.round(w * dpr);
-    cv.height = Math.round(w * 0.52 * dpr);
+    cv.width = Math.max(120, Math.round(w * dpr));
+    cv.height = Math.max(70, Math.round(w * 0.52 * dpr));
+    cv.style.width = '100%';
     cv.style.height = Math.round(w * 0.52) + 'px';
+    cv.style.maxWidth = '640px';
+    cv.style.margin = '0 auto';
+    cv.style.display = 'block';
+    cv.style.background = '#14452f';
   }
   function toUnits(px, py){
     return { x: px / cv.clientWidth * P.W, y: py / cv.clientWidth * P.W };
   }
   function draw(){
+    if (cv.width < 10 || cv.height < 10){ fit(); }
     const ctx = cv.getContext('2d');
     const s = cv.width / P.W;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = '#0b3d2b';
+    ctx.fillRect(0, 0, cv.width, cv.height);
     // felt + rails
     ctx.fillStyle = '#14452f';
     ctx.fillRect(0, 0, cv.width, cv.height);
@@ -426,6 +455,8 @@ function renderRoom(){
   if (root){ root.innerHTML = headerHTML() + roomHTML() + footerHTML() + drawerHTML() + bottomNavHTML(); }
   if (S.roomView.game === 'pool8') poolInit();
 }
+/* full render() rebuilds the DOM too — the MutationObserver below re-arms the
+   pool canvas renderer, otherwise the canvas stays black */
 
 /* ---------- chat ---------- */
 function renderChatText(text){
@@ -645,3 +676,15 @@ navigate = function(r){
   if (r === 'friends') loadFriends();
   if (r === 'room' && S.roomView) { refreshLobbyBits(); }
 };
+
+
+/* re-arm pool canvas after full page renders (mark-read, nav, etc.) */
+(function(){
+  const mo = new MutationObserver(() => {
+    if (S.route === 'room' && S.roomView && S.roomView.game === 'pool8' && document.getElementById('pool-canvas') && !document.getElementById('pool-canvas').__armed){
+      document.getElementById('pool-canvas').__armed = true;
+      poolInit();
+    }
+  });
+  if (document.getElementById('root')) mo.observe(document.getElementById('root'), { childList: true, subtree: true });
+})();

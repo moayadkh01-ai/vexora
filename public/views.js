@@ -57,10 +57,10 @@ function viewLobby(){
     + '<div style="margin-top:34px"><h3 class="section-title">' + icon('door', 20) + ' غرف مفتوحة</h3>'
     + '<div class="section-sub">انضم لغرفة عامة أو أنشئ غرفتك وشارك الرمز</div>'
     + '<div id="rooms-list">' + roomCards() + '</div></div>'
-    + '<div style="margin-top:34px">'
-    + '<h3 class="section-title">' + icon('send', 20) + ' غرف السواليف <span class="chip playable">10 غرف · آني</span></h3>'
-    + '<div class="section-sub">دردشة عامة مباشرة لكل الأعضاء — ادخل وسولف مع اللاعبين</div>'
-    + '<div class="gchat-grid" id="gchat-list">' + gchatCards() + '</div></div>'
+    + '<div style="margin-top:26px;text-align:center" class="card">'
+    + '<span style="font-size:30px">🛋️</span><b style="display:block;margin:6px 0 4px">غرف الدردشة انتقلت لتبويب «الغرف»</b>'
+    + '<div class="sub">10 غرف حية بالنقر على تبويب الغرف بالأسفل</div>'
+    + '<button class="btn primary small" style="margin-top:10px" onclick="navigate(\'chat\')">' + icon('send', 14) + ' افتح الغرف الآن</button></div>'
     + '</div>'
 
     + '<aside style="display:flex;flex-direction:column;gap:20px">'
@@ -547,22 +547,25 @@ async function loadChatRooms(){
     }
   } catch(e){ /* offline tolerant */ }
 }
+function roomDisplayName(rm){
+  return 'غرفة ' + rm.id;
+}
 function gchatCards(){
   const rooms = Array.isArray(S.chatRooms) ? S.chatRooms : [];
   if (!rooms.length) return '<div class="empty">جارٍ تحميل الغرف…</div>';
   return rooms.map(rm => {
     const unread = S.chatUnread[rm.id] || 0;
-    return '<div class="gchat-card" onclick="openChatRoom(' + rm.id + ')">'
+    return '<div class="gchat-card neon-card" onclick="openChatRoom(' + rm.id + ')">'
       + '<span class="gemoji">' + rm.emoji + '</span>'
-      + '<div class="gmeta"><b>' + esc(rm.name) + (unread ? ' <span class="unread-badge num">' + unread + '</span>' : '') + '</b>'
-      + '<span class="glast">' + (rm.last ? esc(rm.last.name) + ': ' + esc(rm.last.text).slice(0, 44) : 'ابدأ السالفة الأولى ✓') + '</span>'
+      + '<div class="gmeta"><b><span class="num">' + roomDisplayName(rm) + '</span>' + (unread ? ' <span class="unread-badge num">' + unread + '</span>' : '') + '</b>'
+      + '<span class="glast">' + (rm.last ? esc(rm.last.name) + ': ' + esc(rm.last.text).slice(0, 44) : 'ابدأ أول دردشة ✓') + '</span>'
       + '<span class="gcount num">' + fmt(rm.msgs) + ' رسالة</span></div>'
       + '<span class="ggo">' + icon('arrow', 16) + '</span></div>';
   }).join('');
 }
 function viewChat(){
   if (!S.chatOpenId){
-    return shell('<h2 class="title">غرف السواليف</h2>'
+    return shell('<h2 class="title">الغرف</h2>'
       + '<div class="section-sub" style="margin-bottom:14px">10 غرف دردشة عامة — تواصل آني مع كل لاعبي فيكسورا</div>'
       + '<div class="gchat-grid" style="grid-template-columns:1fr">' + gchatCards() + '</div>', 'السواليف');
   }

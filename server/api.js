@@ -261,7 +261,7 @@ api.post('/chat/rooms/:id/messages', (req, res) => {
   const r = db.prepare('INSERT INTO gchat_msgs (room_id,user_id,name,text,created_at) VALUES (?,?,?,?,?)')
     .run(id, req.user.id, req.user.username, text, now());
   const msg = { id: Number(r.lastInsertRowid), room_id: id, name: req.user.username, text, created_at: now() };
-  rt.onlineUserIds().forEach(uid => rt.deliverOnly(uid, { seq: 0, type: 'gchat', data: { msg }, at: now() }));
+  rt.onlineUserIds().forEach(uid => rt.emit(uid, 'gchat', { msg }));   /* persisted → reaches WS + long-poll users */
   return ok(res, { msg });
 });
 

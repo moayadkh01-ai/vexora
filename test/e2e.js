@@ -363,7 +363,7 @@ async function main(){
   console.log('— public chat rooms (realtime)');
   r = await api('GET', '/api/chat/rooms', null, laylaTok);
   T('exactly 10 public chat rooms listed', r.status === 200 && r.j && r.j.rooms && r.j.rooms.length === 10, r.j ? (r.j.rooms || []).length : ('status ' + r.status));
-  T('rooms are the curated Arabic set', r.j.rooms[0].name.indexOf('العامة') >= 0 && r.j.rooms[9].name.indexOf('حرة') >= 0);
+  T('rooms are the numbered set (غرفة 1..10)', r.j.rooms[0].name.indexOf('غرفة 1') >= 0 && r.j.rooms[9].name.indexOf('غرفة 10') >= 0);
   r = await api('POST', '/api/chat/rooms/1/messages', { text: 'هلا فيكسورا! أول سالفة 🎮' }, laylaTok);
   T('message posted', r.status === 200 && r.j.msg.text.indexOf('سالفة') >= 0);
   r = await api('POST', '/api/chat/rooms/1/messages', { text: '' }, laylaTok);

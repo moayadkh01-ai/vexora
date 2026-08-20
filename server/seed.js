@@ -55,16 +55,16 @@ function seed(){
     }
     /* public chat rooms (غرف السواليف) — idempotent */
     const insRoom = db.prepare('INSERT INTO gchat_rooms (id,name,emoji,sort) VALUES (?,?,?,?) ON CONFLICT(id) DO UPDATE SET name = excluded.name, emoji = excluded.emoji');
-    insRoom.run(1, 'ديوانية فيكسورا', '🛋️', 1);
-    insRoom.run(2, 'السوالف العامة', '💬', 2);
-    insRoom.run(3, 'ساحة التحدي', '⚔️', 3);
-    insRoom.run(4, 'استراحة الألعاب', '☕', 4);
-    insRoom.run(5, 'سالفة البلياردو والطاولة', '🎱', 5);
-    insRoom.run(6, 'سالفة الشطرنج والذكاء', '♞', 6);
-    insRoom.run(7, 'البطولات والجوائز', '🏆', 7);
-    insRoom.run(8, 'الترحيب بالأعضاء الجدد', '👋', 8);
-    insRoom.run(9, 'الاقتراحات والدعم', '🛠️', 9);
-    insRoom.run(10, 'دردشة حرة', '🌍', 10);
+    insRoom.run(1, 'غرفة 1 — الديوانية', '🛋️', 1);
+    insRoom.run(2, 'غرفة 2 — السوالف', '💬', 2);
+    insRoom.run(3, 'غرفة 3 — التحدي', '⚔️', 3);
+    insRoom.run(4, 'غرفة 4 — الاستراحة', '☕', 4);
+    insRoom.run(5, 'غرفة 5 — البلياردو والطاولة', '🎱', 5);
+    insRoom.run(6, 'غرفة 6 — الشطرنج', '♞', 6);
+    insRoom.run(7, 'غرفة 7 — البطولات', '🏆', 7);
+    insRoom.run(8, 'غرفة 8 — الترحيب', '👋', 8);
+    insRoom.run(9, 'غرفة 9 — الدعم', '🛠️', 9);
+    insRoom.run(10, 'غرفة 10 — حرة', '🌍', 10);
   });
   run();
 }

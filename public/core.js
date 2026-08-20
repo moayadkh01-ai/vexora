@@ -264,7 +264,7 @@ const TITLES = {
   friends: 'الأصدقاء',
   room: 'غرفة اللعب',
   admin: 'لوحة الإدارة — VEXORA',
-  chat: 'غرف السواليف — فيكسورا'
+  chat: 'الغرف — فيكسورا'
 };
 function navigate(r){
   if (!S.me && r !== 'auth') r = 'auth';
@@ -302,7 +302,7 @@ function headerHTML(){
   return '<header class="hdr"><div class="wrap hdr-in">'
     + '<a class="hdr-logo" href="#/lobby" onclick="navigate(\'lobby\')" aria-label="فيكسورا">' + logoFull(38, 21) + '</a>'
     + '<nav class="hdr-nav">'
-    + navLink('lobby', 'home', 'اللوبي') + navLink('chat', 'send', 'السواليف') + navLink('store', 'store', 'المتجر') + navLink('wallet', 'wallet', 'المحفظة') + navLink('friends', 'users', 'الأصدقاء')
+    + navLink('lobby', 'home', 'اللوبي') + navLink('chat', 'send', 'الغرف') + navLink('store', 'store', 'المتجر') + navLink('wallet', 'wallet', 'المحفظة') + navLink('friends', 'users', 'الأصدقاء')
     + (u.role === 'admin' ? navLink('admin', 'shield', 'الإدارة') : '')
     + '</nav>'
     + '<div class="hdr-spacer"></div>'
@@ -356,15 +356,16 @@ function drawerHTML(){
   const it = (r, ic, lb) => '<a href="#/' + r + '" class="' + (S.route === r ? 'active' : '') + '" onclick="navigate(\'' + r + '\')">' + icon(ic, 19) + lb + '</a>';
   return '<div class="drawer" id="drawer"><div class="dk" onclick="closeDrawer()"></div><div class="db">'
     + '<div style="padding:6px 8px 16px">' + logoFull(34, 19) + '</div>'
-    + it('lobby', 'home', 'اللوبي') + it('chat', 'send', 'غرف السواليف') + it('store', 'store', 'المتجر') + it('wallet', 'wallet', 'المحفظة') + it('friends', 'users', 'الأصدقاء') + it('profile', 'user', 'ملفي')
+    + it('lobby', 'home', 'اللوبي') + it('chat', 'send', 'الغرف') + it('store', 'store', 'المتجر') + it('wallet', 'wallet', 'المحفظة') + it('friends', 'users', 'الأصدقاء') + it('profile', 'user', 'ملفي')
     + (u.role === 'admin' ? it('admin', 'shield', 'لوحة الإدارة') : '')
     + '<div style="flex:1"></div>'
     + '<button class="btn ghost wfull" onclick="logout()">' + icon('logout', 16) + ' تسجيل الخروج</button></div></div>';
 }
 function bottomNavHTML(){
   const u = S.me.user;
-  const it = (r, ic, lb) => '<a href="#/' + r + '" class="' + (S.route === r ? 'active' : '') + '" onclick="navigate(\'' + r + '\')">' + icon(ic, 19) + lb + '</a>';
-  return '<nav class="bottom-nav">' + it('lobby', 'home', 'اللوبي') + it('chat', 'send', 'السواليف') + it('store', 'store', 'المتجر') + it('wallet', 'wallet', 'المحفظة') + it('friends', 'users', 'الأصدقاء') + (u.role === 'admin' ? it('admin', 'shield', 'الإدارة') : it('profile', 'user', 'ملفي')) + '</nav>';
+  const it = (r, ic, lb) => '<a href="#/' + r + '" class="' + (S.route === r ? 'active' : '') + '" onclick="navigate(\'' + r + '\')">'
+    + '<span class="nav-orb"><span class="nav-orb-in">' + icon(ic, 19) + '</span></span><span class="nav-lb">' + lb + '</span></a>';
+  return '<nav class="bottom-nav">' + it('lobby', 'home', 'اللوبي') + it('chat', 'send', 'الغرف') + it('store', 'store', 'المتجر') + it('wallet', 'wallet', 'المحفظة') + it('friends', 'users', 'الأصدقاء') + (u.role === 'admin' ? it('admin', 'shield', 'الإدارة') : it('profile', 'user', 'ملفي')) + '</nav>';
 }
 function footerHTML(){
   return '<footer class="ftr"><div class="wrap">'
